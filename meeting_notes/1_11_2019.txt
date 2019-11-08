@@ -1,0 +1,15 @@
+Requirements
+1. The agent must be generic and can run on any domain
+2. Score is based on 2 criterion:
+  - Total utility
+  - Total distance to Nash bargaining solution
+3. The report has to explain the followings 
+  - The reason behind choosing techniques
+  - How the technique can be improved
+  
+Topics to research
+1. Concession strategy
+2. Preference uncertainty and elicitation
+3. Counter offer
+4. Opponent modelling
+5. Techniques used in previous competitions 
