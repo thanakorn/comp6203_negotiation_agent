@@ -12,7 +12,7 @@ import genius.core.utility.AbstractUtilitySpace;
 
 import java.util.List;
 
-public class Agent37 extends AbstractNegotiationParty {
+public class Agent37 extends StandardNegotiationAgent {
 
     private double targetUtility;
     private Bid lastOffer;
@@ -22,82 +22,45 @@ public class Agent37 extends AbstractNegotiationParty {
     @Override
     public void init(NegotiationInfo info){
         super.init(info);
-        // TODO : Initialize variables
-        if(hasPreferenceUncertainty()){
-            // TODO : Initialize variables for preference uncertainty
-        }
-    }
-
-    @Override
-    public void receiveMessage(AgentID sender, Action action) {
-        if (action instanceof Offer) {
-            lastOffer = ((Offer) action).getBid();
-            if(hasPreferenceUncertainty()) {
-                /** Update utility space **/
-                AbstractUtilitySpace newUtilitySpace = estimateUtilitySpace();
-                AbstractUtilitySpace newOpponentUtilitySpace = estimateOpponentUtilitySpace();
-                this.utilitySpace = newUtilitySpace;
-                this.opponentUtilitySpace = newOpponentUtilitySpace;
-            }
-        }
-    }
-
-    @Override
-    public Action chooseAction(List<Class<? extends Action>> possibleActions) {
-        if(lastOffer != null){
-            double time = timeline.getTime();
-
-            if (timeline.getTime() >= 0.99) {
-                // TODO : Implement last round strategy
-                return new EndNegotiation(getPartyId());
-            }
-
-            double estimatedUtility = getUtility(lastOffer);
-            double estimatedOpponentUtility = opponentUtilitySpace.getUtility(lastOffer);
-
-            if(isAcceptable(estimatedUtility)){
-                return new Accept(getPartyId(), lastOffer);
-            }else{
-                concedeTargetUtility(estimatedUtility, estimatedOpponentUtility, time);
-                return new Offer(getPartyId(), generateCounterOffer());
-            }
-        }
-        return null;
+        // TODO : Add anything if needed
     }
 
     /**
-     * Update utility space
+     * Estimate utility space
      */
     @Override
     public AbstractUtilitySpace estimateUtilitySpace() {
+        // TODO : Implement user mo
         return null;
     }
 
     /**
-     * Update opponent's utility space
+     * Estimate opponent's utility space
      */
-    private AbstractUtilitySpace estimateOpponentUtilitySpace() {
+    @Override
+    protected AbstractUtilitySpace estimateOpponentUtilitySpace() {
         return null;
     }
 
     /**
      * Check whether the offer is acceptable
      */
-    private boolean isAcceptable(double estimatedUtility){
-        return estimatedUtility >= targetUtility;
+    protected boolean isAcceptable(double utility, double opponentUtility, double time){
+        return true;
     }
 
     /**
-     * Concede target utility
+     * Concession strategy
      */
-    private double concedeTargetUtility(double estimatedUtility, double estimatedOpponentUtility,double time){
-        return targetUtility;
+    @Override
+    protected void concedeTargetUtility(double estimatedUtility, double estimatedOpponentUtility,double time){
     }
 
     /**
      * Generating counter-offer
      */
-    private Bid generateCounterOffer(){
+    @Override
+    protected Bid generateCounterOffer(){
         return null;
     }
 
