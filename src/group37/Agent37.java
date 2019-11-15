@@ -45,6 +45,7 @@ public class Agent37 extends StandardNegotiationAgent {
     /**
      * Check whether the offer is acceptable
      */
+    @Override
     protected boolean isAcceptable(double utility, double opponentUtility, double time){
         return true;
     }
@@ -60,7 +61,7 @@ public class Agent37 extends StandardNegotiationAgent {
      * Generating counter-offer
      */
     @Override
-    protected Bid generateCounterOffer(){
+    protected Bid generateBid(){
         return null;
     }
 

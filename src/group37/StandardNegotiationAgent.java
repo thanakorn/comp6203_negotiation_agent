@@ -2,10 +2,7 @@ package group37;
 
 import genius.core.AgentID;
 import genius.core.Bid;
-import genius.core.actions.Accept;
-import genius.core.actions.Action;
-import genius.core.actions.EndNegotiation;
-import genius.core.actions.Offer;
+import genius.core.actions.*;
 import genius.core.issue.Issue;
 import genius.core.issue.IssueDiscrete;
 import genius.core.issue.ValueDiscrete;
@@ -34,6 +31,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
     protected List<Issue> issues;
     protected HashMap<Issue, List<ValueDiscrete>> valuesMap;
     protected Bid lastOffer;
+    protected Action lastAction;
 
     protected AbstractUtilitySpace opponentUtilitySpace;
 
@@ -47,7 +45,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
         try{
             highestBid = utilitySpace.getMaxUtilityBid();
             lowestBid = utilitySpace.getMinUtilityBid();
-            initialMinTargetUtility = utilitySpace.getUtility(highestBid);
+            initialTargetUtility = utilitySpace.getUtility(highestBid);
             initialMinTargetUtility = utilitySpace.getUtility(lowestBid);
         } catch (Exception e){
             initialTargetUtility = DEFAULT_INITIAL_TARGET_UTILITY;
@@ -60,8 +58,9 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
 
         /* Store issues and values for future uses */
         issues = additiveUtilitySpace.getDomain().getIssues();
+        valuesMap = new HashMap<>();
         for(Issue i : issues){
-            IssueDiscrete issueDiscrete = (IssueDiscrete) issues;
+            IssueDiscrete issueDiscrete = (IssueDiscrete) i;
             valuesMap.put(i, issueDiscrete.getValues());
         }
 
@@ -69,6 +68,12 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
         if(hasPreferenceUncertainty()){
 
         }
+
+        System.out.println("Finish initialize agent");
+        System.out.println("Target utility : " + targetUtility);
+        System.out.println("Minimum target utility : " + minTargetUtility);
+        System.out.println("Highest bid : " + highestBid);
+        System.out.println("Lowest bid : " + lowestBid);
     }
 
     @Override
@@ -85,28 +90,34 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
 
     @Override
     public Action chooseAction(List<Class<? extends Action>> possibleActions) {
+        Action action;
         if(lastOffer != null){
             double time = timeline.getTime();
             double utility = getUtility(lastOffer);
-            double opponentUtility = opponentUtilitySpace.getUtility(lastOffer);
+            double opponentUtility = (opponentUtilitySpace != null) ? opponentUtilitySpace.getUtility(lastOffer): 0.0;
 
             if (timeline.getTime() >= 0.99) {
-                if(utility >= utilitySpace.getReservationValueWithDiscount(time)) return new Accept(getPartyId(), lastOffer);
-                else                                                              return new EndNegotiation(getPartyId());
-            }
-
-            if(isAcceptable(utility, opponentUtility, time)){
-                return new Accept(getPartyId(), lastOffer);
+                if(utility >= utilitySpace.getReservationValueWithDiscount(time)) action = new Accept(getPartyId(), lastOffer);
+                else                                                              action = new EndNegotiation(getPartyId());
             }else{
-                concedeTargetUtility(utility, opponentUtility, time);
-                return new Offer(getPartyId(), generateCounterOffer());
+                if (isAcceptable(utility, opponentUtility, time)) {
+                    action = new Accept(getPartyId(), lastOffer);
+                } else {
+                    concedeTargetUtility(utility, opponentUtility, time);
+                    action = new Offer(getPartyId(), generateBid());
+                }
             }
+        }else{
+            action = new Offer(getPartyId(), generateBid());
         }
-        return new Offer(getPartyId(), generateCounterOffer());
+        lastAction = action;
+        reportNegotiationSummary();
+        return action;
     }
 
     /**
      * Update utility space
+     * By default, using default estimator
      */
     @Override
     public AbstractUtilitySpace estimateUtilitySpace() {
@@ -115,6 +126,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
 
     /**
      * Update opponent's utility space
+     * By default, do not model the opponent's utility
      */
     protected AbstractUtilitySpace estimateOpponentUtilitySpace() {
         return null;
@@ -122,6 +134,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
 
     /**
      * Check whether the offer is acceptable
+     * By default, accept any offer which utility is higher than target utility
      */
     protected boolean isAcceptable(double utility, double opponentUtility, double time){
         return utility >= targetUtility;
@@ -139,7 +152,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
      * Generating counter-offer
      * By default, generate bid randomly until utility exceed targetUtility (maximum 100 times)
      */
-    protected Bid generateCounterOffer(){
+    protected Bid generateBid(){
         Bid randomBid;
         double util;
         int i = 0;
@@ -161,4 +174,20 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
 
     @Override
     public String getDescription() { return "StandardNegotiationAgent"; }
+
+    protected void reportNegotiationSummary(){
+        System.out.println("________________________________________________________");
+        System.out.println("Time : " + timeline.getTime());
+        System.out.println("Last offer receive : " + lastOffer);
+        if(lastOffer != null){
+            System.out.println("Last offer utility : " + getUtility(lastOffer));
+        }
+        System.out.println("Target utility : " + targetUtility);
+        System.out.println("Minimum target utility : " + minTargetUtility);
+        System.out.println("Action taken : " + lastAction);
+        if(lastAction instanceof DefaultActionWithBid){
+            DefaultActionWithBid lastBid = (DefaultActionWithBid)lastAction;
+            System.out.println("Offer utility : " + getUtility(lastBid.getBid()));
+        }
+    }
 }
