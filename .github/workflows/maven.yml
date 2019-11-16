@@ -14,6 +14,6 @@ jobs:
       with:
         java-version: 1.8
     - name: Install GENIUS
-      run: mvn install:install-file -Dfile=resources/genius-9.1.12.jar
+      run: mvn org.apache.maven.plugins:maven-install-plugin:2.3.1:install-file
     - name: Build with Maven
       run: mvn -B package --file pom.xml
