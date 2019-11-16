@@ -4,6 +4,33 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>install-genius-jar</id>
+                        <phase>clean</phase>
+                        <configuration>
+                            <repositoryLayout>default</repositoryLayout>
+                            <groupId>genius</groupId>
+                            <artifactId>genius</artifactId>
+                            <version>9.1.12</version>
+                            <file>${project.basedir}/resources/genius-9.1.12.jar</file>
+                            <packaging>jar</packaging>
+                            <generatePom>true</generatePom>
+                        </configuration>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+         
     <groupId>group37</groupId>
     <artifactId>Agent37</artifactId>
     <version>1.0-SNAPSHOT</version>
