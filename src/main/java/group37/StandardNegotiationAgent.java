@@ -5,6 +5,7 @@ import genius.core.Bid;
 import genius.core.actions.*;
 import genius.core.issue.Issue;
 import genius.core.issue.IssueDiscrete;
+import genius.core.issue.Value;
 import genius.core.issue.ValueDiscrete;
 import genius.core.parties.AbstractNegotiationParty;
 import genius.core.parties.NegotiationInfo;
@@ -58,7 +59,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
 
         /* Store issues and values for future uses */
         issues = additiveUtilitySpace.getDomain().getIssues();
-        valuesMap = new HashMap<>();
+        valuesMap = new HashMap<Issue, List<ValueDiscrete>>();
         for(Issue i : issues){
             IssueDiscrete issueDiscrete = (IssueDiscrete) i;
             valuesMap.put(i, issueDiscrete.getValues());
@@ -93,8 +94,8 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
         Action action;
         if(lastOffer != null){
             double time = timeline.getTime();
-            double utility = getUtility(lastOffer);
-            double opponentUtility = (opponentUtilitySpace != null) ? opponentUtilitySpace.getUtility(lastOffer): 0.0;
+            double utility = getUtilityWithDiscount(lastOffer);
+            double opponentUtility = (opponentUtilitySpace != null) ? opponentUtilitySpace.getUtilityWithDiscount(lastOffer, time): 0.0;
 
             if (timeline.getTime() >= 0.99) {
                 if(utility >= utilitySpace.getReservationValueWithDiscount(time)) action = new Accept(getPartyId(), lastOffer);
@@ -145,7 +146,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
      * By default, using linear time-concession strategy
      */
     protected void concedeTargetUtility(double estimatedUtility, double estimatedOpponentUtility, double time){
-        targetUtility = (1.0 - time) * initialTargetUtility;
+        targetUtility = Math.max((1.0 - time) * initialTargetUtility, minTargetUtility);
     }
 
     /**
@@ -160,7 +161,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
         do
         {
             randomBid = generateRandomBid();
-            util = getUtility(randomBid);
+            util = getUtilityWithDiscount(randomBid);
         }
         while (util < targetUtility && i++ < 100);
         return randomBid;
@@ -177,17 +178,17 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
 
     protected void reportNegotiationSummary(){
         System.out.println("________________________________________________________");
-        System.out.println("Time : " + timeline.getTime());
+        System.out.println("Time : " + (int)(timeline.getTime() * 60));
         System.out.println("Last offer receive : " + lastOffer);
         if(lastOffer != null){
-            System.out.println("Last offer utility : " + getUtility(lastOffer));
+            System.out.println("Last offer utility : " + getUtilityWithDiscount(lastOffer));
         }
         System.out.println("Target utility : " + targetUtility);
         System.out.println("Minimum target utility : " + minTargetUtility);
         System.out.println("Action taken : " + lastAction);
         if(lastAction instanceof DefaultActionWithBid){
             DefaultActionWithBid lastBid = (DefaultActionWithBid)lastAction;
-            System.out.println("Offer utility : " + getUtility(lastBid.getBid()));
+            System.out.println("Offer utility : " + getUtilityWithDiscount(lastBid.getBid()));
         }
     }
 }
