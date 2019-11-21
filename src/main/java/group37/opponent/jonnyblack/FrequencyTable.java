@@ -4,9 +4,20 @@ import genius.core.Domain;
 import genius.core.issue.Issue;
 import genius.core.issue.IssueDiscrete;
 import genius.core.issue.Value;
-import java.util.HashMap;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 public class FrequencyTable {
+
+    private static final Comparator<Entry<Value, Integer>> frequencyComparator  = new Comparator<Entry<Value, Integer>>() {
+        @Override
+        public int compare(Entry<Value, Integer> e1, Entry<Value, Integer> e2) {
+            Integer v1 = e1.getValue();
+            Integer v2 = e2.getValue();
+            return v1.compareTo(v2);
+        }
+    };
 
     private HashMap<Issue, HashMap<Value, Integer>> frequencyTable;
 
@@ -28,6 +39,15 @@ public class FrequencyTable {
 
     public int getFrequency(Issue i, Value v){
         return frequencyTable.get(i).get(v);
+    }
+
+    public int getValueRank(Issue issue, Value v){
+        List<Entry<Value, Integer>> valueFrequencies = new ArrayList<Entry<Value, Integer>>(frequencyTable.get(issue).entrySet());
+        Collections.sort(valueFrequencies, Collections.reverseOrder(frequencyComparator));
+        for(int i = 0; i <= valueFrequencies.size(); i++){
+            if(valueFrequencies.get(i).getKey().equals(v)) return i + 1;
+        }
+        return -1;
     }
 
 }
