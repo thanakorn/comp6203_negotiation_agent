@@ -27,3 +27,5 @@ hs_err_pid*
 *.xml
 !pom.xml
 log/*
+etc/*
+target/*
