@@ -4,9 +4,9 @@ import genius.core.Domain;
 import genius.core.issue.Issue;
 import genius.core.issue.IssueDiscrete;
 import genius.core.issue.Value;
-
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.IntStream;
 
 public class FrequencyTable {
 
@@ -41,13 +41,20 @@ public class FrequencyTable {
         return frequencyTable.get(i).get(v);
     }
 
+    public int getTotalFrequency(Issue i){
+        return frequencyTable.get(i)
+                            .entrySet()
+                            .stream()
+                            .mapToInt(x -> x.getValue())
+                            .sum();
+    }
+
     public int getValueRank(Issue issue, Value v){
         List<Entry<Value, Integer>> valueFrequencies = new ArrayList<Entry<Value, Integer>>(frequencyTable.get(issue).entrySet());
         Collections.sort(valueFrequencies, Collections.reverseOrder(frequencyComparator));
-        for(int i = 0; i <= valueFrequencies.size(); i++){
-            if(valueFrequencies.get(i).getKey().equals(v)) return i + 1;
-        }
-        return -1;
+        return IntStream.range(0, valueFrequencies.size())
+                        .filter(i -> valueFrequencies.get(i).getKey().equals(v))
+                        .findFirst().getAsInt() + 1;
     }
 
 }
