@@ -18,7 +18,7 @@ public class FrequencyTableSpec {
     Issue issue2 = (Issue)(new IssueDiscrete("issue2", 2, new String[]{"A", "B"}));
     List<Issue> issues = Arrays.asList(new Issue[]{issue1, issue2});
 
-    @Test
+    @Test(expected = Exception.class)
     public void testConstructorInitiateAllValues(){
         Mockito.when(mockDomain.getIssues()).thenReturn(issues);
         FrequencyTable ft = new FrequencyTable(mockDomain);
@@ -27,9 +27,10 @@ public class FrequencyTableSpec {
         assertEquals(ft.getFrequency(issue1, new ValueDiscrete("3")), 0);
         assertEquals(ft.getFrequency(issue2, new ValueDiscrete("A")), 0);
         assertEquals(ft.getFrequency(issue2, new ValueDiscrete("B")), 0);
+        ft.getFrequency(issue2, new ValueDiscrete("Z"));
     }
 
-    @Test
+    @Test(expected = Exception.class)
     public void testUpdateAndGetFrequency(){
         Mockito.when(mockDomain.getIssues()).thenReturn(issues);
         FrequencyTable ft = new FrequencyTable(mockDomain);
@@ -41,6 +42,7 @@ public class FrequencyTableSpec {
         assertEquals(ft.getFrequency(issue1, new ValueDiscrete("1")), 3);
         assertEquals(ft.getFrequency(issue2, new ValueDiscrete("A")), 1);
         assertEquals(ft.getFrequency(issue2, new ValueDiscrete("B")), 1);
+        ft.updateFrequency(issue2, new ValueDiscrete("C"));
     }
 
     @Test
