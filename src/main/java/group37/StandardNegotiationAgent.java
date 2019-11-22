@@ -3,24 +3,18 @@ package group37;
 import genius.core.AgentID;
 import genius.core.Bid;
 import genius.core.actions.*;
-import genius.core.issue.Issue;
-import genius.core.issue.IssueDiscrete;
-import genius.core.issue.Value;
-import genius.core.issue.ValueDiscrete;
 import genius.core.parties.AbstractNegotiationParty;
 import genius.core.parties.NegotiationInfo;
 import genius.core.utility.AbstractUtilitySpace;
-import genius.core.utility.AdditiveUtilitySpace;
-import java.util.HashMap;
+import group37.opponent.jonnyblack.JonnyBlackOM;
+import group37.user.OrdinalUM;
+
 import java.util.List;
 
 public class StandardNegotiationAgent extends AbstractNegotiationParty {
 
     protected double DEFAULT_INITIAL_TARGET_UTILITY = 0.9;
     protected double DEFAULT_INITIAL_MIN_TARGET_UTILITY = 0.3;
-
-    protected Bid highestBid;
-    protected Bid lowestBid;
 
     protected double discountFactor;
     protected double initialReservedValue;
@@ -29,25 +23,30 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
     protected double initialMinTargetUtility;
     protected double minTargetUtility;
 
-    protected List<Issue> issues;
-    protected HashMap<Issue, List<ValueDiscrete>> valuesMap;
     protected Bid lastOffer;
     protected Action lastAction;
 
-    protected AbstractUtilitySpace opponentUtilitySpace;
+    protected JonnyBlackOM om;
+    protected OrdinalUM um;
 
     @Override
     public void init(NegotiationInfo info){
         super.init(info);
 
-        AdditiveUtilitySpace additiveUtilitySpace = (AdditiveUtilitySpace) info.getUtilitySpace();
+        System.out.println("Initialize agent");
+
+        om = new JonnyBlackOM(getDomain(), 0.5, 10);
 
         /* Set target utility */
+        Bid highestBid;
+        Bid lowestBid;
         try{
             highestBid = utilitySpace.getMaxUtilityBid();
             lowestBid = utilitySpace.getMinUtilityBid();
-            initialTargetUtility = utilitySpace.getUtility(highestBid);
-            initialMinTargetUtility = utilitySpace.getUtility(lowestBid);
+            System.out.println("Highest bid : " + highestBid);
+            System.out.println("Lowest bid : " + lowestBid);
+            initialTargetUtility = Math.max(utilitySpace.getUtility(highestBid), DEFAULT_INITIAL_TARGET_UTILITY);
+            initialMinTargetUtility = Math.max(utilitySpace.getUtility(lowestBid), DEFAULT_INITIAL_MIN_TARGET_UTILITY);
         } catch (Exception e){
             initialTargetUtility = DEFAULT_INITIAL_TARGET_UTILITY;
             initialMinTargetUtility = DEFAULT_INITIAL_MIN_TARGET_UTILITY;
@@ -57,24 +56,16 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
         targetUtility = initialTargetUtility;
         minTargetUtility = Math.max(initialReservedValue, initialMinTargetUtility);
 
-        /* Store issues and values for future uses */
-        issues = additiveUtilitySpace.getDomain().getIssues();
-        valuesMap = new HashMap<Issue, List<ValueDiscrete>>();
-        for(Issue i : issues){
-            IssueDiscrete issueDiscrete = (IssueDiscrete) i;
-            valuesMap.put(i, issueDiscrete.getValues());
-        }
+        System.out.println("Target utility : " + targetUtility);
+        System.out.println("Minimum target utility : " + minTargetUtility);
+        System.out.println("Discount factor : " + discountFactor);
+        System.out.println("Reserved value : " + initialReservedValue);
 
         // TODO : Add initialization logic for preference uncertainty if needed
         if(hasPreferenceUncertainty()){
-
+            System.out.println("Has preference uncertainty, initiate UserModel");
+            um = new OrdinalUM(info.getUser(), info.getUserModel(), minTargetUtility, 10);
         }
-
-        System.out.println("Finish initialize agent");
-        System.out.println("Target utility : " + targetUtility);
-        System.out.println("Minimum target utility : " + minTargetUtility);
-        System.out.println("Highest bid : " + highestBid);
-        System.out.println("Lowest bid : " + lowestBid);
     }
 
     @Override
@@ -83,8 +74,8 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
             lastOffer = ((Offer) action).getBid();
             if(hasPreferenceUncertainty()) {
                 /* Update utility space */
-                overrideUtilitySpace(estimateUtilitySpace());
-                this.opponentUtilitySpace = estimateOpponentUtilitySpace();
+                om.updateOM(lastOffer);
+                um.updateUM(lastOffer);
             }
         }
     }
@@ -94,12 +85,16 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
         Action action;
         if(lastOffer != null){
             double time = timeline.getTime();
-            double utility = getUtilityWithDiscount(lastOffer);
-            double opponentUtility = (opponentUtilitySpace != null) ? opponentUtilitySpace.getUtilityWithDiscount(lastOffer, time): 0.0;
+            double utility = um.getUtility(lastOffer);
+            double opponentUtility = om.getUtility(lastOffer);
 
             if (timeline.getTime() >= 0.99) {
-                if(utility >= utilitySpace.getReservationValueWithDiscount(time)) action = new Accept(getPartyId(), lastOffer);
-                else                                                              action = new EndNegotiation(getPartyId());
+                if(utility >= utilitySpace.getReservationValueWithDiscount(time)) {
+                    action = new Accept(getPartyId(), lastOffer);
+                }
+                else {
+                    action = new EndNegotiation(getPartyId());
+                }
             }else{
                 if (isAcceptable(utility, opponentUtility, time)) {
                     action = new Accept(getPartyId(), lastOffer);
@@ -161,7 +156,8 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
         do
         {
             randomBid = generateRandomBid();
-            util = getUtilityWithDiscount(randomBid);
+            um.updateUM(randomBid);
+            util = um.getUtility(randomBid);
         }
         while (util < targetUtility && i++ < 100);
         return randomBid;
@@ -181,14 +177,15 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
         System.out.println("Time : " + (int)(timeline.getTime() * 60));
         System.out.println("Last offer receive : " + lastOffer);
         if(lastOffer != null){
-            System.out.println("Last offer utility : " + getUtilityWithDiscount(lastOffer));
+            System.out.println("Estimated last offer utility : " + um.getUtility(lastOffer));
+            System.out.println("Estimated last offer opponent utility : " + om.getUtility(lastOffer));
         }
         System.out.println("Target utility : " + targetUtility);
         System.out.println("Minimum target utility : " + minTargetUtility);
         System.out.println("Action taken : " + lastAction);
         if(lastAction instanceof DefaultActionWithBid){
             DefaultActionWithBid lastBid = (DefaultActionWithBid)lastAction;
-            System.out.println("Offer utility : " + getUtilityWithDiscount(lastBid.getBid()));
+            System.out.println("Offer utility : " + om.getUtility(lastBid.getBid()));
         }
     }
 }
