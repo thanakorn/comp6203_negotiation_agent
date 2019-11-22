@@ -1,5 +1,6 @@
 package group37.opponent.jonnyblack;
 
+import genius.core.Bid;
 import genius.core.Domain;
 import genius.core.issue.Issue;
 import genius.core.issue.IssueDiscrete;
@@ -33,16 +34,20 @@ public class FrequencyTable {
         }
     }
 
-    public void updateFrequency(Issue i, Value v){
-        frequencyTable.get(i).put(v, frequencyTable.get(i).get(v) + 1);
+    public void updateFrequency(Bid bid){
+        bid.getIssues().stream().forEach(issue -> {
+            Value v = bid.getValue(issue);
+            frequencyTable.get(issue).put(v, frequencyTable.get(issue).get(v) + 1);
+        });
+
     }
 
     public int getFrequency(Issue i, Value v){
         return frequencyTable.get(i).get(v);
     }
 
-    public int getTotalFrequency(Issue i){
-        return frequencyTable.get(i)
+    public int getTotalFrequency(){
+        return frequencyTable.get(frequencyTable.keySet().iterator().next())
                             .entrySet()
                             .stream()
                             .mapToInt(x -> x.getValue())
