@@ -12,10 +12,14 @@ public class OrdinalUM {
 
     private User user;
     private UserModel userModel;
+    private int minBidOrderSize;
+    private  double initialUtility;
 
-    public OrdinalUM(User _user, UserModel _userModel){
+    public OrdinalUM(User _user, UserModel _userModel, double _initialUtility, int _minBidOrderSize){
         user = _user;
         userModel = _userModel;
+        minBidOrderSize = _minBidOrderSize;
+        initialUtility = _initialUtility;
     }
 
     public void updateUM(Bid bid){
@@ -27,7 +31,10 @@ public class OrdinalUM {
 
     public double getUtility(Bid bid){
         List<Bid> bidOrder = userModel.getBidRanking().getBidOrder();
-        return (double)(bidOrder.indexOf(bid) + 1) / (double) bidOrder.size();
+        if(bidOrder.size() >= minBidOrderSize)
+            return (double)(bidOrder.indexOf(bid) + 1) / (double) bidOrder.size();
+        else
+            return initialUtility;
     }
 
 }
