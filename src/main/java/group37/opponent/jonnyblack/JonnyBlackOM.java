@@ -36,7 +36,7 @@ public class JonnyBlackOM implements OpponentModel {
         }
     }
 
-    public void updateOM(Bid opponentBid){
+    public void updateModel(Bid opponentBid){
         ft.updateFrequency(opponentBid);
     }
 

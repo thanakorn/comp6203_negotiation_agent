@@ -34,14 +34,14 @@ public class JonnyBlackOMSpec {
     }
 
     @Test
-    public void testUpdateOMUpdateFreq(){
+    public void testupdateModelUpdateFreq(){
         Mockito.when(mockDomain.getIssues()).thenReturn(issues);
         JonnyBlackOM om = new JonnyBlackOM(mockDomain, initUtility, 0);
         HashMap<Integer, Value> issueValues = new HashMap<Integer, Value>();
         issueValues.put(1, new ValueDiscrete("1"));
         issueValues.put(2, new ValueDiscrete("B"));
         Bid opponentBid = new Bid(mockDomain, issueValues);
-        om.updateOM(opponentBid);
+        om.updateModel(opponentBid);
         assertEquals(1.0, om.getUtility(opponentBid), 0.01);
     }
 
@@ -53,28 +53,28 @@ public class JonnyBlackOMSpec {
             put(1, new ValueDiscrete("1"));
             put(2, new ValueDiscrete("A"));
         }});
-        om.updateOM(bid1);
-        om.updateOM(bid1);
-        om.updateOM(bid1);
+        om.updateModel(bid1);
+        om.updateModel(bid1);
+        om.updateModel(bid1);
         Bid bid2 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
             put(1, new ValueDiscrete("1"));
             put(2, new ValueDiscrete("B"));
         }});
-        om.updateOM(bid2);
-        om.updateOM(bid2);
-        om.updateOM(bid2);
-        om.updateOM(bid2);
-        om.updateOM(bid2);
+        om.updateModel(bid2);
+        om.updateModel(bid2);
+        om.updateModel(bid2);
+        om.updateModel(bid2);
+        om.updateModel(bid2);
         Bid bid3 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
             put(1, new ValueDiscrete("1"));
             put(2, new ValueDiscrete("C"));
         }});
-        om.updateOM(bid3);
+        om.updateModel(bid3);
         Bid bid4 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
             put(1, new ValueDiscrete("2"));
             put(2, new ValueDiscrete("C"));
         }});
-        om.updateOM(bid4);
+        om.updateModel(bid4);
 
         Bid lastOffer = new Bid(mockDomain, new HashMap<Integer, Value>() {{
             put(1, new ValueDiscrete("1"));

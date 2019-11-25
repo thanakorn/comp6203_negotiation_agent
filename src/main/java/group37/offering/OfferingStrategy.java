@@ -21,7 +21,7 @@ public abstract class OfferingStrategy {
 
     public abstract Bid generateBid(double targetUtility);
 
-    protected Bid generateRandomBid() {
+    public Bid generateRandomBid() {
         try {
             HashMap<Integer, Value> values = new HashMap<Integer, Value>();
             for (Issue currentIssue : domain.getIssues()) {

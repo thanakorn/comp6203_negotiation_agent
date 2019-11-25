@@ -52,7 +52,7 @@ public class RankDependentPMSpec {
     }
 
     @Test
-    public void testUpdateUM(){
+    public void testupdateModel(){
         UserModel userModel = new UserModel(
             new BidRanking(new ArrayList<Bid>(){{
                 add(bid1);
@@ -69,7 +69,7 @@ public class RankDependentPMSpec {
 
         Mockito.when(mockUser.elicitRank(bid3, userModel)).thenReturn(newUserModel);
         RankDependentPM um = new RankDependentPM(mockUser, userModel, 0.5,1);
-        um.updateUM(bid3);
+        um.updateModel(bid3);
         assertEquals(1.0, um.getUtility(bid3), 0.01);
     }
 
@@ -91,7 +91,7 @@ public class RankDependentPMSpec {
 
         Mockito.when(mockUser.elicitRank(bid2, userModel)).thenReturn(newUserModel);
         RankDependentPM um = new RankDependentPM(mockUser, userModel, 0.5,1);
-        um.updateUM(bid2);
+        um.updateModel(bid2);
         assertEquals(1.0, um.getUtility(bid2), 0.01);
     }
 
@@ -131,11 +131,11 @@ public class RankDependentPMSpec {
         Mockito.when(mockUser.elicitRank(bid4, newUserModel)).thenReturn(newUserModel2);
         Mockito.when(mockUser.elicitRank(bid5, newUserModel2)).thenReturn(newUserModel3);
         RankDependentPM um = new RankDependentPM(mockUser, userModel, 0.5, 2);
-        um.updateUM(bid3); // Bid3 should have highest utility at this step
+        um.updateModel(bid3); // Bid3 should have highest utility at this step
         assertEquals(1.0, um.getUtility(bid3), 0.01);
-        um.updateUM(bid4); // Bid4 has highest utility at this step
+        um.updateModel(bid4); // Bid4 has highest utility at this step
         assertEquals(1.0, um.getUtility(bid4), 0.01);
-        um.updateUM(bid5); // Bid4 has highest utility at this step
+        um.updateModel(bid5); // Bid4 has highest utility at this step
         assertEquals(0.8, um.getUtility(bid3), 0.01);
         assertEquals(1.0, um.getUtility(bid4), 0.01);
         assertEquals(0.6, um.getUtility(bid5), 0.01);
@@ -161,7 +161,7 @@ public class RankDependentPMSpec {
         RankDependentPM um = new RankDependentPM(mockUser, userModel, initialUtility, 3);
         assertEquals(initialUtility, um.getUtility(bid3), 0.01);
         Mockito.when(mockUser.elicitRank(bid3, userModel)).thenReturn(newUserModel);
-        um.updateUM(bid3);
+        um.updateModel(bid3);
         assertEquals(1.0, um.getUtility(bid3), 0.01);
     }
 

@@ -19,13 +19,15 @@ public class RankDependentPM implements PreferenceModel {
         initialUtility = _initialUtility;
     }
 
-    public void updateUM(Bid bid){
+    @Override
+    public void updateModel(Bid bid){
         if(!userModel.getBidRanking().getBidOrder().contains(bid)){
             UserModel newUserModel = user.elicitRank(bid, userModel);
             userModel = newUserModel;
         }
     }
 
+    @Override
     public double getUtility(Bid bid){
         List<Bid> bidOrder = userModel.getBidRanking().getBidOrder();
         if(bidOrder.size() >= minBidOrderSize)
