@@ -5,6 +5,8 @@ import genius.core.Domain;
 import genius.core.issue.Issue;
 import genius.core.issue.IssueDiscrete;
 import genius.core.issue.Value;
+import group37.opponent.OpponentModel;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +14,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class JonnyBlackOM {
+public class JonnyBlackOM implements OpponentModel {
 
     private HashMap<Issue, List<Value>> issueValues;
     private FrequencyTable ft;

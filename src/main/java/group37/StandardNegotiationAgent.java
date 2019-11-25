@@ -7,7 +7,7 @@ import genius.core.parties.AbstractNegotiationParty;
 import genius.core.parties.NegotiationInfo;
 import genius.core.utility.AbstractUtilitySpace;
 import group37.opponent.jonnyblack.JonnyBlackOM;
-import group37.user.OrdinalUM;
+import group37.preference.RankDependentPM;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
     protected Action lastAction;
 
     protected JonnyBlackOM om;
-    protected OrdinalUM um;
+    protected RankDependentPM um;
 
     @Override
     public void init(NegotiationInfo info){
@@ -64,7 +64,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
         // TODO : Add initialization logic for preference uncertainty if needed
         if(hasPreferenceUncertainty()){
             System.out.println("Has preference uncertainty, initiate UserModel");
-            um = new OrdinalUM(info.getUser(), info.getUserModel(), minTargetUtility, 10);
+            um = new RankDependentPM(info.getUser(), info.getUserModel(), minTargetUtility, 10);
         }
     }
 

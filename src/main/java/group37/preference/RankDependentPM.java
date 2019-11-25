@@ -1,21 +1,18 @@
-package group37.user;
+package group37.preference;
 
 import genius.core.Bid;
-import genius.core.Domain;
-import genius.core.uncertainty.BidRanking;
 import genius.core.uncertainty.User;
 import genius.core.uncertainty.UserModel;
-
 import java.util.List;
 
-public class OrdinalUM {
+public class RankDependentPM implements PreferenceModel {
 
     private User user;
     private UserModel userModel;
     private int minBidOrderSize;
     private  double initialUtility;
 
-    public OrdinalUM(User _user, UserModel _userModel, double _initialUtility, int _minBidOrderSize){
+    public RankDependentPM(User _user, UserModel _userModel, double _initialUtility, int _minBidOrderSize){
         user = _user;
         userModel = _userModel;
         minBidOrderSize = _minBidOrderSize;
