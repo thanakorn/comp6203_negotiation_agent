@@ -47,12 +47,12 @@ public class RankDependentPMSpec {
     }});
 
     @Test
-    public void testContructor(){
+    public void testConstructor(){
         RankDependentPM um = new RankDependentPM(mockUser, mockUserModel, 0.5,1);
     }
 
     @Test
-    public void testupdateModel(){
+    public void testUpdateModel(){
         UserModel userModel = new UserModel(
             new BidRanking(new ArrayList<Bid>(){{
                 add(bid1);
@@ -163,6 +163,18 @@ public class RankDependentPMSpec {
         Mockito.when(mockUser.elicitRank(bid3, userModel)).thenReturn(newUserModel);
         um.updateModel(bid3);
         assertEquals(1.0, um.getUtility(bid3), 0.01);
+    }
+
+    @Test
+    public void testUnknownBid(){
+        UserModel userModel = new UserModel(
+                new BidRanking(new ArrayList<Bid>(){{
+                    add(bid1);
+                    add(bid2);
+                }}, 0.0, 1.0)
+        );
+        RankDependentPM um = new RankDependentPM(mockUser, userModel, 0.5,1);
+        assertEquals(0.0, um.getUtility(bid3), 0.01);
     }
 
 }

@@ -15,7 +15,6 @@ import group37.opponent.jonnyblack.JonnyBlackOM;
 import group37.preference.PreferenceModel;
 import group37.preference.RankDependentPM;
 import group37.preference.StaticPM;
-
 import java.util.List;
 
 public class StandardNegotiationAgent extends AbstractNegotiationParty {
@@ -26,11 +25,8 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
 
     protected double discountFactor;
     protected double initialReservedValue;
-    protected double initialTargetUtility;
-
 
     protected Bid lastOffer;
-    protected Action lastAction;
 
     protected OpponentModel opponentModel;
     protected PreferenceModel preferenceModel;
@@ -118,7 +114,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
                     action = new EndNegotiation(getPartyId());
                 }
             }else{
-                if (targetUtility >= utility) {
+                if (utility >= targetUtility) {
                     action = new Accept(getPartyId(), lastOffer);
                 } else {
                     action = new Offer(getPartyId(), offeringStrategy.generateBid(targetUtility));
@@ -130,8 +126,9 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
 
         System.out.println("Action taken : " + action);
         if(action instanceof DefaultActionWithBid){
-            DefaultActionWithBid lastBid = (DefaultActionWithBid)lastAction;
-            System.out.println("Offer utility : " + opponentModel.getUtility(lastBid.getBid()));
+            DefaultActionWithBid lastBid = (DefaultActionWithBid)action;
+            System.out.println("Counter offer utility : " + preferenceModel.getUtility(lastBid.getBid()));
+            System.out.println("Counter offer opponent utility : " + opponentModel.getUtility(lastBid.getBid()));
         }
         return action;
     }
@@ -147,11 +144,4 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
 
     @Override
     public String getDescription() { return "StandardNegotiationAgent"; }
-
-    protected void roundSummary(){
-
-
-
-
-    }
 }
