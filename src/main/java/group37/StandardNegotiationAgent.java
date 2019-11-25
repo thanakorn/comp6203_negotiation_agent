@@ -27,6 +27,8 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
     protected double initialReservedValue;
 
     protected Bid lastOffer;
+    protected double targetUtility;
+    protected double minTargetUtility;
 
     protected OpponentModel opponentModel;
     protected PreferenceModel preferenceModel;
@@ -42,8 +44,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
         /* Set target utility */
         Bid highestBid;
         Bid lowestBid;
-        double targetUtility;
-        double minTargetUtility;
+
         try{
             highestBid = utilitySpace.getMaxUtilityBid();
             lowestBid = utilitySpace.getMinUtilityBid();
