@@ -13,6 +13,8 @@
 # Package Files #
 *.jar
 !genius-9.1.12.jar
+!SCPSolver.jar
+!LPSOLVESolverPack.jar
 *.war
 *.nar
 *.ear
