@@ -47,7 +47,7 @@ public class LinearPMBuilder {
         return objective;
     }
 
-    public List<LinearConstraint> getConstrains(){
+    public List<LinearConstraint> getConstraints(){
         List<LinearConstraint> constraints = new LinkedList<>();
         int length = numValues + numSlackVar;
         double[] emptyConstraint = new double[length];

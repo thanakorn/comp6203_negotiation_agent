@@ -148,8 +148,8 @@ public class LinearPMBuilderSpec {
             add(bid2);
             add(bid1);
         }});
-        List<LinearConstraint> constraints = s.getConstrains();
-        assertEquals(10, s.getConstrains().size());
+        List<LinearConstraint> constraints = s.getConstraints();
+        assertEquals(10, s.getConstraints().size());
         assertTrue(constraints.get(0) instanceof LinearBiggerThanEqualsConstraint);
         assertTrue(Arrays.equals(new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0}, constraints.get(0).getC()));
         assertTrue(constraints.get(1) instanceof LinearBiggerThanEqualsConstraint);
