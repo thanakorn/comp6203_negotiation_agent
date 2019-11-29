@@ -12,7 +12,6 @@ import java.util.Random;
 public class RandomOfferingStrategy extends OfferingStrategy{
 
     private PreferenceModel preferenceModel;
-    private Random rand;
 
     public RandomOfferingStrategy(NegotiationInfo info, PreferenceModel preferenceModel){
         super(info);

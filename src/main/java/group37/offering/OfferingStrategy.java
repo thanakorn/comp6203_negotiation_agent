@@ -11,7 +11,6 @@ import java.util.Random;
 public abstract class OfferingStrategy {
 
     private Random rand;
-
     protected Domain domain;
 
     public OfferingStrategy(NegotiationInfo info){
