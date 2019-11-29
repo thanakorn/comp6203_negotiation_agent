@@ -10,13 +10,13 @@ public class RankDependentPM implements PreferenceModel {
     private User user;
     private UserModel userModel;
     private int minBidOrderSize;
-    private  double initialUtility;
+    private  double unknownUtility;
 
-    public RankDependentPM(User _user, UserModel _userModel, double _initialUtility, int _minBidOrderSize){
-        user = _user;
-        userModel = _userModel;
-        minBidOrderSize = _minBidOrderSize;
-        initialUtility = _initialUtility;
+    public RankDependentPM(User user, UserModel userModel, double unknownUtility, int minBidOrderSize){
+        this.user = user;
+        this.userModel = userModel;
+        this.minBidOrderSize = minBidOrderSize;
+        this.unknownUtility = unknownUtility;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class RankDependentPM implements PreferenceModel {
         if(bidOrder.size() >= minBidOrderSize)
             return (double)(bidOrder.indexOf(bid) + 1) / (double) bidOrder.size();
         else
-            return initialUtility;
+            return unknownUtility;
     }
 
 }
