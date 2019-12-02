@@ -99,29 +99,38 @@ public class LinearPMBuilderSpec {
         List<LinearConstraint> constraints = s.getConstraints();
         assertEquals(11, s.getConstraints().size());
         assertTrue(constraints.get(0) instanceof LinearBiggerThanEqualsConstraint);
+        assertEquals(0.0, constraints.get(0).getT(), 0.0);
         assertTrue(Arrays.equals(new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0}, constraints.get(0).getC()));
         assertTrue(constraints.get(1) instanceof LinearBiggerThanEqualsConstraint);
+        assertEquals(0.0, constraints.get(1).getT(), 0.0);
         assertTrue(Arrays.equals(new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0}, constraints.get(1).getC()));
         assertTrue(constraints.get(2) instanceof LinearBiggerThanEqualsConstraint);
+        assertEquals(0.0, constraints.get(2).getT(), 0.0);
         assertTrue(Arrays.equals(new double[]{1.0, 0.0, -1.0, 1.0, -1.0, 1.0, 0.0}, constraints.get(2).getC()));
         assertTrue(constraints.get(3) instanceof LinearBiggerThanEqualsConstraint);
+        assertEquals(0.0, constraints.get(3).getT(), 0.0);
         assertTrue(Arrays.equals(new double[]{0.0, -1.0, 1.0, -1.0, 1.0, 0.0, 1.0}, constraints.get(3).getC()));
         assertTrue(constraints.get(4) instanceof LinearBiggerThanEqualsConstraint);
+        assertEquals(0.0, constraints.get(4).getT(), 0.0);
         assertTrue(Arrays.equals(new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, constraints.get(4).getC()));
         assertTrue(constraints.get(5) instanceof LinearBiggerThanEqualsConstraint);
+        assertEquals(0.0, constraints.get(5).getT(), 0.0);
         assertTrue(Arrays.equals(new double[]{0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0}, constraints.get(5).getC()));
         assertTrue(constraints.get(6) instanceof LinearBiggerThanEqualsConstraint);
+        assertEquals(0.0, constraints.get(6).getT(), 0.0);
         assertTrue(Arrays.equals(new double[]{0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0}, constraints.get(6).getC()));
         assertTrue(constraints.get(7) instanceof LinearBiggerThanEqualsConstraint);
+        assertEquals(0.0, constraints.get(7).getT(), 0.0);
         assertTrue(Arrays.equals(new double[]{0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0}, constraints.get(7).getC()));
         assertTrue(constraints.get(8) instanceof LinearBiggerThanEqualsConstraint);
+        assertEquals(0.0, constraints.get(8).getT(), 0.0);
         assertTrue(Arrays.equals(new double[]{0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0}, constraints.get(8).getC()));
         assertTrue(constraints.get(9) instanceof LinearEqualsConstraint);
+        assertEquals(1.0, constraints.get(9).getT(), 0.0);
         assertTrue(Arrays.equals(new double[]{1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0}, constraints.get(9).getC()));
-        assertEquals(1.0, constraints.get(9).getT(), 0.00);
         assertTrue(constraints.get(10) instanceof LinearEqualsConstraint);
-        assertTrue(Arrays.equals(new double[]{0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0}, constraints.get(10).getC()));
         assertEquals(0.3, constraints.get(10).getT(), 0.00);
+        assertTrue(Arrays.equals(new double[]{0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0}, constraints.get(10).getC()));
     }
 
 }
