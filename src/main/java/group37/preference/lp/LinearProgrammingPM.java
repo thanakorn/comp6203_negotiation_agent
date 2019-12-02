@@ -5,6 +5,7 @@ import genius.core.Domain;
 import genius.core.issue.Issue;
 import genius.core.issue.IssueDiscrete;
 import genius.core.issue.Value;
+import genius.core.uncertainty.BidRanking;
 import genius.core.uncertainty.User;
 import genius.core.uncertainty.UserModel;
 import group37.preference.PreferenceModel;
@@ -34,7 +35,7 @@ public class LinearProgrammingPM implements PreferenceModel {
         for (Issue i : domain.getIssues()){
             allValues.addAll(((IssueDiscrete)i).getValues());
         }
-        this.valuesUtility = findValuesUtility(userModel.getBidRanking().getBidOrder());
+        this.valuesUtility = findValuesUtility(userModel.getBidRanking());
     }
 
     @Override
@@ -53,13 +54,14 @@ public class LinearProgrammingPM implements PreferenceModel {
         if(!userModel.getBidRanking().getBidOrder().contains(bid)){
             UserModel newUserModel = user.elicitRank(bid, userModel);
             userModel = newUserModel;
-            valuesUtility = findValuesUtility(newUserModel.getBidRanking().getBidOrder());
+            valuesUtility = findValuesUtility(newUserModel.getBidRanking());
         }
     }
 
-    private HashMap<Value, Double> findValuesUtility(List<Bid> bidOrder){
+    private HashMap<Value, Double> findValuesUtility(BidRanking bidRank){
+        List<Bid> bidOrder = bidRank.getBidOrder();
         HashMap<Value, Double> valuesUtility = new HashMap<>();
-        LinearPMBuilder builder = new LinearPMBuilder(domain, bidOrder);
+        LinearPMBuilder builder = new LinearPMBuilder(domain, bidRank);
 
         double[] objective = builder.getObjective();
         LinearProgram lp = new LinearProgram(objective);

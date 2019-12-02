@@ -6,6 +6,7 @@ import genius.core.issue.Issue;
 import genius.core.issue.IssueDiscrete;
 import genius.core.issue.Value;
 import genius.core.issue.ValueDiscrete;
+import genius.core.uncertainty.BidRanking;
 import org.junit.Test;
 import org.mockito.Mockito;
 import scpsolver.constraints.LinearBiggerThanEqualsConstraint;
@@ -25,10 +26,29 @@ public class LinearPMBuilderSpec {
     Issue issue2 = (Issue)(new IssueDiscrete("issue2", 2, new String[]{"A", "B"}));
     List<Issue> issues = Arrays.asList(new Issue[]{issue1, issue2});
 
+    Bid bid1 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
+        put(1, new ValueDiscrete("1"));
+        put(2, new ValueDiscrete("A"));
+    }});
+    Bid bid2 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
+        put(1, new ValueDiscrete("3"));
+        put(2, new ValueDiscrete("B"));
+    }});
+    Bid bid3 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
+        put(1, new ValueDiscrete("2"));
+        put(2, new ValueDiscrete("A"));
+    }});
+
+    List<Bid> bidOrder = new ArrayList<Bid>(){{
+        add(bid3);
+        add(bid2);
+        add(bid1);
+    }};
+
     @Test
     public void testConstructorValueIndices(){
         Mockito.when(mockDomain.getIssues()).thenReturn(issues);
-        LinearPMBuilder s = new LinearPMBuilder(mockDomain, new ArrayList<>());
+        LinearPMBuilder s = new LinearPMBuilder(mockDomain, new BidRanking(bidOrder, 0.0, 1.0));
         assertEquals(0, s.getValueIndex(new ValueDiscrete("1")));
         assertEquals(1, s.getValueIndex(new ValueDiscrete("2")));
         assertEquals(2, s.getValueIndex(new ValueDiscrete("3")));
@@ -39,19 +59,7 @@ public class LinearPMBuilderSpec {
     @Test
     public void testGetBidCoefficients(){
         Mockito.when(mockDomain.getIssues()).thenReturn(issues);
-        LinearPMBuilder s = new LinearPMBuilder(mockDomain, new ArrayList<Bid>());
-        Bid bid1 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("1"));
-            put(2, new ValueDiscrete("A"));
-        }});
-        Bid bid2 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("3"));
-            put(2, new ValueDiscrete("B"));
-        }});
-        Bid bid3 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("2"));
-            put(2, new ValueDiscrete("A"));
-        }});
+        LinearPMBuilder s = new LinearPMBuilder(mockDomain, new BidRanking(bidOrder, 0.0, 1.0));
         assertTrue(Arrays.equals(new double[]{1.0, 0.0, 0.0, 1.0, 0.0}, s.getBidCoefficients(bid1)));
         assertTrue(Arrays.equals(new double[]{0.0, 0.0, 1.0, 0.0, 1.0}, s.getBidCoefficients(bid2)));
         assertTrue(Arrays.equals(new double[]{0.0, 1.0, 0.0, 1.0, 0.0}, s.getBidCoefficients(bid3)));
@@ -60,19 +68,7 @@ public class LinearPMBuilderSpec {
     @Test
     public void testGenerateDeltaCoefficients(){
         Mockito.when(mockDomain.getIssues()).thenReturn(issues);
-        Bid bid1 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("1"));
-            put(2, new ValueDiscrete("A"));
-        }});
-        Bid bid2 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("3"));
-            put(2, new ValueDiscrete("B"));
-        }});
-        Bid bid3 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("2"));
-            put(2, new ValueDiscrete("A"));
-        }});
-        LinearPMBuilder s = new LinearPMBuilder(mockDomain, new ArrayList<>());
+        LinearPMBuilder s = new LinearPMBuilder(mockDomain, new BidRanking(bidOrder, 0.0, 1.0));
         assertTrue(Arrays.equals(new double[]{1.0, 0.0, -1.0, 1.0, -1.0}, s.getDeltaCoefficients(bid1, bid2)));
         assertTrue(Arrays.equals(new double[]{1.0, -1.0, 0.0, 0.0, 0.0}, s.getDeltaCoefficients(bid1, bid3)));
         assertTrue(Arrays.equals(new double[]{0.0, -1.0, 1.0, -1.0, 1.0}, s.getDeltaCoefficients(bid2, bid3)));
@@ -82,23 +78,7 @@ public class LinearPMBuilderSpec {
     @Test
     public void testConstructorGenerateDeltaU(){
         Mockito.when(mockDomain.getIssues()).thenReturn(issues);
-        Bid bid1 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("1"));
-            put(2, new ValueDiscrete("A"));
-        }});
-        Bid bid2 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("3"));
-            put(2, new ValueDiscrete("B"));
-        }});
-        Bid bid3 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("2"));
-            put(2, new ValueDiscrete("A"));
-        }});
-        LinearPMBuilder s = new LinearPMBuilder(mockDomain, new ArrayList<Bid>(){{
-            add(bid3);
-            add(bid2);
-            add(bid1);
-        }});
+        LinearPMBuilder s = new LinearPMBuilder(mockDomain, new BidRanking(bidOrder, 0.0, 1.0));
         double[][] deltaU = s.getDeltaU();
         assertEquals(2, deltaU.length);
         assertTrue(Arrays.equals(new double[]{1.0, 0.0, -1.0, 1.0, -1.0}, deltaU[0]));
@@ -108,48 +88,16 @@ public class LinearPMBuilderSpec {
     @Test
     public void testGetObjective(){
         Mockito.when(mockDomain.getIssues()).thenReturn(issues);
-        Bid bid1 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("1"));
-            put(2, new ValueDiscrete("A"));
-        }});
-        Bid bid2 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("3"));
-            put(2, new ValueDiscrete("B"));
-        }});
-        Bid bid3 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("2"));
-            put(2, new ValueDiscrete("A"));
-        }});
-        LinearPMBuilder s = new LinearPMBuilder(mockDomain, new ArrayList<Bid>(){{
-            add(bid3);
-            add(bid2);
-            add(bid1);
-        }});
+        LinearPMBuilder s = new LinearPMBuilder(mockDomain, new BidRanking(bidOrder, 0.0, 1.0));
         assertTrue(Arrays.equals(new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0}, s.getObjective()));
     }
 
     @Test
     public void testGetConstraints(){
         Mockito.when(mockDomain.getIssues()).thenReturn(issues);
-        Bid bid1 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("1"));
-            put(2, new ValueDiscrete("A"));
-        }});
-        Bid bid2 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("3"));
-            put(2, new ValueDiscrete("B"));
-        }});
-        Bid bid3 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("2"));
-            put(2, new ValueDiscrete("A"));
-        }});
-        LinearPMBuilder s = new LinearPMBuilder(mockDomain, new ArrayList<Bid>(){{
-            add(bid3);
-            add(bid2);
-            add(bid1);
-        }});
+        LinearPMBuilder s = new LinearPMBuilder(mockDomain, new BidRanking(bidOrder, 0.3, 1.0));
         List<LinearConstraint> constraints = s.getConstraints();
-        assertEquals(10, s.getConstraints().size());
+        assertEquals(11, s.getConstraints().size());
         assertTrue(constraints.get(0) instanceof LinearBiggerThanEqualsConstraint);
         assertTrue(Arrays.equals(new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0}, constraints.get(0).getC()));
         assertTrue(constraints.get(1) instanceof LinearBiggerThanEqualsConstraint);
@@ -170,6 +118,10 @@ public class LinearPMBuilderSpec {
         assertTrue(Arrays.equals(new double[]{0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0}, constraints.get(8).getC()));
         assertTrue(constraints.get(9) instanceof LinearEqualsConstraint);
         assertTrue(Arrays.equals(new double[]{1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0}, constraints.get(9).getC()));
+        assertEquals(1.0, constraints.get(9).getT(), 0.00);
+        assertTrue(constraints.get(10) instanceof LinearEqualsConstraint);
+        assertTrue(Arrays.equals(new double[]{0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0}, constraints.get(10).getC()));
+        assertEquals(0.3, constraints.get(10).getT(), 0.00);
     }
 
 }
