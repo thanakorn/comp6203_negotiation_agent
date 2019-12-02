@@ -29,15 +29,6 @@
                     </execution>
                 </executions>
             </plugin>
-        </plugins>
-    </build>
-         
-    <groupId>group37</groupId>
-    <artifactId>Agent37</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
-    <build>
-        <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -48,6 +39,10 @@
             </plugin>
         </plugins>
     </build>
+         
+    <groupId>group37</groupId>
+    <artifactId>Agent37</artifactId>
+    <version>1.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
