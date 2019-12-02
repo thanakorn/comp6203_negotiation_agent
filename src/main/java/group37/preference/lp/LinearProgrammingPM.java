@@ -24,18 +24,22 @@ public class LinearProgrammingPM implements PreferenceModel {
     private Domain domain;
     private User user;
     private UserModel userModel;
+    private List<Issue> allIssues;
     private List<Value> allValues;
     private HashMap<Value, Double> valuesUtility;
+    private HashMap<Issue, Double> issueWeights;
 
     public LinearProgrammingPM(Domain domain, User user, UserModel userModel){
         this.domain = domain;
         this.user = user;
         this.userModel = userModel;
+        this.allIssues = domain.getIssues();
         this.allValues = new LinkedList<>();
         for (Issue i : domain.getIssues()){
             allValues.addAll(((IssueDiscrete)i).getValues());
         }
         this.valuesUtility = findValuesUtility(userModel.getBidRanking());
+        this.issueWeights = findIssuesWeight(userModel.getBidRanking(), valuesUtility);
     }
 
     @Override
@@ -55,6 +59,7 @@ public class LinearProgrammingPM implements PreferenceModel {
             UserModel newUserModel = user.elicitRank(bid, userModel);
             userModel = newUserModel;
             valuesUtility = findValuesUtility(newUserModel.getBidRanking());
+            issueWeights = findIssuesWeight(userModel.getBidRanking(), valuesUtility);
         }
     }
 
@@ -78,6 +83,27 @@ public class LinearProgrammingPM implements PreferenceModel {
             valuesUtility.put(v, solution[builder.getValueIndex(v)]);
         }
         return valuesUtility;
+    }
+
+    private HashMap<Issue, Double> findIssuesWeight(BidRanking bidRank, HashMap<Value, Double> valuesUtility){
+        List<Bid> bidOrder = bidRank.getBidOrder();
+        HashMap<Issue, Double> issuesWeight = new HashMap<>();
+        LinearPMWeightsBuilder builder = new LinearPMWeightsBuilder(domain, bidRank, valuesUtility);
+
+        double[] objective = builder.getObjective();
+        LinearProgram lp = new LinearProgram(objective);
+        List<LinearConstraint> constraints = builder.getConstraints();
+        for(LinearConstraint c : constraints){
+            lp.addConstraint(c);
+        }
+        lp.setMinProblem(true);
+        LinearProgramSolver solver  = SolverFactory.newDefault();
+        double[] solution = solver.solve(lp);
+
+        for(Issue i: allIssues){
+            issuesWeight.put(i, solution[i.getNumber() - 1]);
+        }
+        return issuesWeight;
     }
 
     public void displayValuesUtility(){
