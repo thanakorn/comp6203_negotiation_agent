@@ -72,12 +72,28 @@ public class LinearProgrammingPMSpec {
     }
 
     @Test
+    public void testValuesUtility(){
+        BidRanking bidRank = new BidRanking(new ArrayList<Bid>(){{
+            add(bid3);
+            add(bid2);
+            add(bid1);
+        }}, 0.3, 1.0);
+        Mockito.when(mockDomain.getIssues()).thenReturn(issues);
+        Mockito.when(mockUserModel.getBidRanking()).thenReturn(bidRank);
+        LinearProgrammingPM pm = new LinearProgrammingPM(mockDomain, mockUser, mockUserModel);
+        assertEquals(1.0, pm.getUtility(bid1), 0.00);
+        assertEquals(0.3, pm.getUtility(bid3), 0.00);
+        assertTrue(pm.getUtility(bid1) >= pm.getUtility(bid2));
+        assertTrue(pm.getUtility(bid2) >= pm.getUtility(bid3));
+    }
+
+    @Test
     public void testUpdateModel(){
         BidRanking bidRank = new BidRanking(new ArrayList<Bid>(){{
             add(bid3);
             add(bid2);
             add(bid1);
-        }}, 0.0, 1.0);
+        }}, 0.3, 0.9);
         Mockito.when(mockDomain.getIssues()).thenReturn(issues);
         Mockito.when(mockUserModel.getBidRanking()).thenReturn(bidRank);
         LinearProgrammingPM pm = new LinearProgrammingPM(mockDomain, mockUser, mockUserModel);
@@ -88,12 +104,16 @@ public class LinearProgrammingPMSpec {
                     add(bid2);
                     add(bid1);
                     add(bid4);
-                }}, 0.0, 1.0)
+                }}, 0.25, 1.0)
         );
         Mockito.when(mockUser.elicitRank(bid4, mockUserModel)).thenReturn(newUserModel);
-
         pm.updateModel(bid4);
+
         assertEquals(1.0, pm.getUtility(bid4), 0.00);
+        assertEquals(0.25, pm.getUtility(bid3), 0.00);
+        assertTrue(pm.getUtility(bid4) >= pm.getUtility(bid1));
+        assertTrue(pm.getUtility(bid1) >= pm.getUtility(bid2));
+        assertTrue(pm.getUtility(bid3) >= pm.getUtility(bid3));
     }
 
 }
