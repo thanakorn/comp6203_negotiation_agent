@@ -14,17 +14,15 @@ import group37.opponent.OpponentModel;
 import group37.opponent.jonnyblack.JonnyBlackOM;
 import group37.preference.PreferenceModel;
 import group37.preference.RankDependentPM;
-import group37.preference.StaticPM;
+
 import java.util.List;
 
 public class StandardNegotiationAgent extends AbstractNegotiationParty {
 
-    protected double DEFAULT_TARGET_UTILITY = 0.9;
-    protected double DEFAULT_MIN_TARGET_UTILITY = 0.3;
-    protected int MINIMUM_BID_ORDER_SIZE = 10;
+    protected double DEFAULT_TARGET_UTILITY = 1.0;
+    protected double DEFAULT_MIN_TARGET_UTILITY = 0.5;
 
     protected double discountFactor;
-    protected double initialReservedValue;
 
     protected Bid lastOffer;
     protected double targetUtility;
@@ -57,25 +55,17 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
             minTargetUtility = DEFAULT_MIN_TARGET_UTILITY;
         }
         discountFactor = utilitySpace.getDiscountFactor();
-        initialReservedValue = utilitySpace.getReservationValue();
-        minTargetUtility = Math.max(initialReservedValue, minTargetUtility);
+        minTargetUtility = Math.max(utilitySpace.getReservationValue(), minTargetUtility);
 
-        opponentModel = new JonnyBlackOM(getDomain(), 0.5, 10);
+        opponentModel = new JonnyBlackOM(this.getDomain(), 0.5, 10);
         concessionStrategy = TimeConcessionStrategies.LinearTimeConcessionStrategy(targetUtility, minTargetUtility);
 
         System.out.println("Target utility : " + targetUtility);
         System.out.println("Minimum target utility : " + minTargetUtility);
         System.out.println("Discount factor : " + discountFactor);
-        System.out.println("Reserved value : " + initialReservedValue);
+        System.out.println("Reserved value : " + utilitySpace.getReservationValue());
 
-        if(hasPreferenceUncertainty()){
-            System.out.println("Has preference uncertainty, initiate UserModel");
-            preferenceModel = new RankDependentPM(info.getUser(), info.getUserModel(), minTargetUtility, MINIMUM_BID_ORDER_SIZE);
-        }else{
-            preferenceModel = new StaticPM(info.getUtilitySpace());
-        }
-
-        offeringStrategy = new RandomOfferingStrategy(info, this.preferenceModel);
+        offeringStrategy = new RandomOfferingStrategy(info, utilitySpace);
     }
 
     @Override
@@ -100,7 +90,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
         if(lastOffer != null){
             double time = timeline.getTime();
             double targetUtility = concessionStrategy.getTargetUtility(time);
-            double utility = preferenceModel.getUtility(lastOffer);
+            double utility = getUtility(lastOffer);
             double opponentUtility = opponentModel.getUtility(lastOffer);
 
             System.out.println("Estimated last offer utility : " + utility);
@@ -128,7 +118,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
         System.out.println("Action taken : " + action);
         if(action instanceof DefaultActionWithBid){
             DefaultActionWithBid lastBid = (DefaultActionWithBid)action;
-            System.out.println("Counter offer utility : " + preferenceModel.getUtility(lastBid.getBid()));
+            System.out.println("Counter offer utility : " + getUtility(lastBid.getBid()));
             System.out.println("Counter offer opponent utility : " + opponentModel.getUtility(lastBid.getBid()));
         }
         return action;
@@ -140,7 +130,10 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
      */
     @Override
     public AbstractUtilitySpace estimateUtilitySpace() {
-        return super.estimateUtilitySpace();
+        System.out.println("Max Utility : " + userModel.getBidRanking().getHighUtility());
+        System.out.println("Min Utility : " + userModel.getBidRanking().getLowUtility());
+        preferenceModel = new RankDependentPM(getDomain(), user, userModel, minTargetUtility - 0.1, 10);
+        return preferenceModel.estimateUtilitySpace();
     }
 
     @Override

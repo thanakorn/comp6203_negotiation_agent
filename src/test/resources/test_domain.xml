@@ -2,7 +2,7 @@
     <utility_space>
         <objective index="0" description="" name="Party" type="objective"
                    etype="objective">
-            <issue index="1" name="Food" vtype="discrete" type="discrete"
+            <issue index="1" name="Issue 1" vtype="discrete" type="discrete"
                    etype="discrete">
                 <item index="1" description="1" value="1" cost="0.0" evaluation="3"></item>
                 <item index="2" description="2" value="2" cost="0.0" evaluation="2"></item>

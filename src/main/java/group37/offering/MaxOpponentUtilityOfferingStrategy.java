@@ -2,6 +2,7 @@ package group37.offering;
 
 import genius.core.Bid;
 import genius.core.parties.NegotiationInfo;
+import genius.core.utility.AbstractUtilitySpace;
 import group37.opponent.OpponentModel;
 import group37.preference.PreferenceModel;
 import java.util.LinkedList;
@@ -17,9 +18,9 @@ public class MaxOpponentUtilityOfferingStrategy extends OfferingStrategy{
     private RandomOfferingStrategy randomOffering;
     private OpponentModel opponentModel;
 
-    public MaxOpponentUtilityOfferingStrategy(NegotiationInfo info, PreferenceModel preferenceModel, OpponentModel opponentModel) {
+    public MaxOpponentUtilityOfferingStrategy(NegotiationInfo info, AbstractUtilitySpace utilitySpace, OpponentModel opponentModel) {
         super(info);
-        this.randomOffering = new RandomOfferingStrategy(info, preferenceModel);
+        this.randomOffering = new RandomOfferingStrategy(info, utilitySpace);
         this.opponentModel = opponentModel;
     }
 

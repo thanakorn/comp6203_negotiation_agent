@@ -18,6 +18,7 @@ public class Agent37 extends StandardNegotiationAgent {
         this.concessionStrategy = TimeConcessionStrategies.CubicTimeConcessionStrategy(targetUtility, minTargetUtility);
         if(hasPreferenceUncertainty()){
             // Pre-generate bid order
+            LinearProgram lp = new LinearProgram(new double[]{1.0});
             List<Bid> currentBidOrder = userModel.getBidRanking().getBidOrder();
             if(currentBidOrder.size() < PM_BID_ORDER_SIZE){
                 for(int i = 0; i < PM_BID_ORDER_SIZE - currentBidOrder.size(); i++){

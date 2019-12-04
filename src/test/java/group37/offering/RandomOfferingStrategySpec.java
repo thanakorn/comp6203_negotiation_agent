@@ -32,7 +32,7 @@ public class RandomOfferingStrategySpec {
         Mockito.when(mockDomain.getIssues()).thenReturn(issues);
         Mockito.when(mockUtilSpace.getDomain()).thenReturn(mockDomain);
         Mockito.when(mockInfo.getUtilitySpace()).thenReturn(mockUtilSpace);
-        new RandomOfferingStrategy(mockInfo, Mockito.mock(PreferenceModel.class));
+        new RandomOfferingStrategy(mockInfo, Mockito.mock(AbstractUtilitySpace.class));
     }
 
     @Test
@@ -41,7 +41,7 @@ public class RandomOfferingStrategySpec {
         Mockito.when(mockUtilSpace.getDomain()).thenReturn(mockDomain);
         Mockito.when(mockInfo.getUtilitySpace()).thenReturn(mockUtilSpace);
 
-        PreferenceModel pm = Mockito.mock(PreferenceModel.class);
+        AbstractUtilitySpace utilitySpace = Mockito.mock(AbstractUtilitySpace.class);
         Bid targetBid = new Bid(mockDomain, new HashMap<Integer, Value>() {{
             put(1, new ValueDiscrete("1"));
             put(2, new ValueDiscrete("A"));
@@ -58,11 +58,12 @@ public class RandomOfferingStrategySpec {
             put(1, new ValueDiscrete("2"));
             put(2, new ValueDiscrete("B"));
         }});
-        Mockito.when(pm.getUtility(targetBid)).thenReturn(0.9);
-        Mockito.when(pm.getUtility(nonTargetBid)).thenReturn(0.1);
-        Mockito.when(pm.getUtility(nonTargetBid2)).thenReturn(0.1);
-        Mockito.when(pm.getUtility(nonTargetBid3)).thenReturn(0.1);
-        OfferingStrategy o = new RandomOfferingStrategy(mockInfo, pm);
+
+        Mockito.when(utilitySpace.getUtility(targetBid)).thenReturn(0.9);
+        Mockito.when(utilitySpace.getUtility(nonTargetBid)).thenReturn(0.1);
+        Mockito.when(utilitySpace.getUtility(nonTargetBid2)).thenReturn(0.1);
+        Mockito.when(utilitySpace.getUtility(nonTargetBid3)).thenReturn(0.1);
+        OfferingStrategy o = new RandomOfferingStrategy(mockInfo, utilitySpace);
         assertEquals(targetBid, o.generateBid(0.8));
     }
 
@@ -72,7 +73,7 @@ public class RandomOfferingStrategySpec {
         Mockito.when(mockUtilSpace.getDomain()).thenReturn(mockDomain);
         Mockito.when(mockInfo.getUtilitySpace()).thenReturn(mockUtilSpace);
 
-        PreferenceModel pm = Mockito.mock(PreferenceModel.class);
+        AbstractUtilitySpace utilitySpace = Mockito.mock(AbstractUtilitySpace.class);
         Bid targetBid = new Bid(mockDomain, new HashMap<Integer, Value>() {{
             put(1, new ValueDiscrete("1"));
             put(2, new ValueDiscrete("A"));
@@ -89,11 +90,11 @@ public class RandomOfferingStrategySpec {
             put(1, new ValueDiscrete("2"));
             put(2, new ValueDiscrete("B"));
         }});
-        Mockito.when(pm.getUtility(targetBid)).thenReturn(0.7);
-        Mockito.when(pm.getUtility(nonTargetBid)).thenReturn(0.1);
-        Mockito.when(pm.getUtility(nonTargetBid2)).thenReturn(0.1);
-        Mockito.when(pm.getUtility(nonTargetBid3)).thenReturn(0.1);
-        OfferingStrategy o = new RandomOfferingStrategy(mockInfo, pm);
+        Mockito.when(utilitySpace.getUtility(targetBid)).thenReturn(0.7);
+        Mockito.when(utilitySpace.getUtility(nonTargetBid)).thenReturn(0.1);
+        Mockito.when(utilitySpace.getUtility(nonTargetBid2)).thenReturn(0.1);
+        Mockito.when(utilitySpace.getUtility(nonTargetBid3)).thenReturn(0.1);
+        OfferingStrategy o = new RandomOfferingStrategy(mockInfo, utilitySpace);
         assertNotNull(o.generateBid(0.8));
     }
 

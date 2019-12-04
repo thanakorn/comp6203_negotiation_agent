@@ -3,6 +3,7 @@ package group37.offering;
 import genius.core.Bid;
 import genius.core.issue.*;
 import genius.core.parties.NegotiationInfo;
+import genius.core.utility.AbstractUtilitySpace;
 import group37.preference.PreferenceModel;
 import genius.core.Domain;
 
@@ -11,11 +12,11 @@ import java.util.Random;
 
 public class RandomOfferingStrategy extends OfferingStrategy{
 
-    private PreferenceModel preferenceModel;
+    private AbstractUtilitySpace utilitySpace;
 
-    public RandomOfferingStrategy(NegotiationInfo info, PreferenceModel preferenceModel){
+    public RandomOfferingStrategy(NegotiationInfo info, AbstractUtilitySpace utilitySpace){
         super(info);
-        this.preferenceModel = preferenceModel;
+        this.utilitySpace = utilitySpace;
     }
 
     public Bid generateBid(double targetUtility) {
@@ -26,7 +27,7 @@ public class RandomOfferingStrategy extends OfferingStrategy{
         do
         {
             randomBid = super.generateRandomBid();
-            util = preferenceModel.getUtility(randomBid);
+            util = utilitySpace.getUtility(randomBid);
         }
         while (util < targetUtility && i++ < 100);
         return randomBid;

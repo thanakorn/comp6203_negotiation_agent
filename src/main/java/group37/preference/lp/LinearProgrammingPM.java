@@ -5,9 +5,12 @@ import genius.core.Domain;
 import genius.core.issue.Issue;
 import genius.core.issue.IssueDiscrete;
 import genius.core.issue.Value;
+import genius.core.issue.ValueDiscrete;
+import genius.core.uncertainty.AdditiveUtilitySpaceFactory;
 import genius.core.uncertainty.BidRanking;
 import genius.core.uncertainty.User;
 import genius.core.uncertainty.UserModel;
+import genius.core.utility.AdditiveUtilitySpace;
 import group37.preference.PreferenceModel;
 import scpsolver.constraints.LinearConstraint;
 import scpsolver.lpsolver.LinearProgramSolver;
@@ -17,7 +20,6 @@ import scpsolver.problems.LinearProgram;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 public class LinearProgrammingPM implements PreferenceModel {
 
@@ -38,34 +40,33 @@ public class LinearProgrammingPM implements PreferenceModel {
         for (Issue i : domain.getIssues()){
             allValues.addAll(((IssueDiscrete)i).getValues());
         }
-        this.valuesUtility = findValuesUtility(userModel.getBidRanking());
-        this.issueWeights = findIssuesWeight(userModel.getBidRanking(), valuesUtility);
     }
 
     @Override
-    public double getUtility(Bid bid) {
-        List<Issue> issues = bid.getIssues();
-        double totalUtility = 0.0;
-        for(Issue i : issues){
-            Value v = bid.getValue(i);
-            totalUtility += valuesUtility.get(v);
+    public AdditiveUtilitySpace estimateUtilitySpace(){
+        HashMap<Value, Double> utilities = estimateUtilities(userModel.getBidRanking());
+        HashMap<Issue, Double> weights = estimateWeight(userModel.getBidRanking(), utilities);
+
+        AdditiveUtilitySpaceFactory additiveUtilitySpaceFactory = new AdditiveUtilitySpaceFactory(domain);
+        for(Issue i : allIssues){
+            additiveUtilitySpaceFactory.setWeight(i, weights.get(i));
+            for(Value v : ((IssueDiscrete)i).getValues()){
+                additiveUtilitySpaceFactory.setUtility(i, (ValueDiscrete) v, utilities.get(v));
+            }
         }
-        return totalUtility;
+        additiveUtilitySpaceFactory.normalizeWeights();
+        return additiveUtilitySpaceFactory.getUtilitySpace();
     }
 
     @Override
     public void updateModel(Bid bid) {
         if(!userModel.getBidRanking().getBidOrder().contains(bid)){
-            UserModel newUserModel = user.elicitRank(bid, userModel);
-            userModel = newUserModel;
-            valuesUtility = findValuesUtility(newUserModel.getBidRanking());
-            issueWeights = findIssuesWeight(userModel.getBidRanking(), valuesUtility);
+            userModel = user.elicitRank(bid, userModel);
         }
     }
 
-    private HashMap<Value, Double> findValuesUtility(BidRanking bidRank){
-        List<Bid> bidOrder = bidRank.getBidOrder();
-        HashMap<Value, Double> valuesUtility = new HashMap<>();
+    private HashMap<Value, Double> estimateUtilities(BidRanking bidRank){
+        HashMap<Value, Double> utilities = new HashMap<>();
         LinearPMBuilder builder = new LinearPMBuilder(domain, bidRank);
 
         double[] objective = builder.getObjective();
@@ -80,14 +81,13 @@ public class LinearProgrammingPM implements PreferenceModel {
 
         for(int i = 0; i < allValues.size(); i++){
             Value v = allValues.get(i);
-            valuesUtility.put(v, solution[builder.getValueIndex(v)]);
+            utilities.put(v, solution[builder.getValueIndex(v)]);
         }
-        return valuesUtility;
+        return utilities;
     }
 
-    private HashMap<Issue, Double> findIssuesWeight(BidRanking bidRank, HashMap<Value, Double> valuesUtility){
-        List<Bid> bidOrder = bidRank.getBidOrder();
-        HashMap<Issue, Double> issuesWeight = new HashMap<>();
+    private HashMap<Issue, Double> estimateWeight(BidRanking bidRank, HashMap<Value, Double> valuesUtility){
+        HashMap<Issue, Double> weights = new HashMap<>();
         LinearPMWeightsBuilder builder = new LinearPMWeightsBuilder(domain, bidRank, valuesUtility);
 
         double[] objective = builder.getObjective();
@@ -101,14 +101,8 @@ public class LinearProgrammingPM implements PreferenceModel {
         double[] solution = solver.solve(lp);
 
         for(Issue i: allIssues){
-            issuesWeight.put(i, solution[i.getNumber() - 1]);
+            weights.put(i, solution[i.getNumber() - 1]);
         }
-        return issuesWeight;
-    }
-
-    public void displayValuesUtility(){
-        for(Map.Entry<Value, Double> e: valuesUtility.entrySet()){
-            System.out.println(e.getKey() + " " + e.getValue());
-        }
+        return weights;
     }
 }
