@@ -1,0 +1,17 @@
+<negotiation_template>
+    <utility_space>
+        <objective index="0" description="" name="Party" type="objective"
+                   etype="objective">
+            <issue index="1" name="Food" vtype="discrete" type="discrete"
+                   etype="discrete">
+                <item index="1" description="1" value="1" cost="0.0" evaluation="3"></item>
+                <item index="2" description="2" value="2" cost="0.0" evaluation="2"></item>
+                <item index="3" description="3" value="3" cost="0.0" evaluation="1"></item>
+            </issue>
+            <issue index="2" name="Issue 2" vtype="discrete" type="discrete" etype="discrete">
+                <item index="1" description="A" value="A" cost="0.0" evaluation="3"></item>
+                <item index="2" description="B" value="B" cost="0.0" evaluation="2"></item>
+            </issue>
+        </objective>
+    </utility_space>
+</negotiation_template>
