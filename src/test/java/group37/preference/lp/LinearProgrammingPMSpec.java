@@ -21,15 +21,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class LinearProgrammingPMSpec {
-//
-//    Domain mockDomain = Mockito.mock(Domain.class);
-//    Issue issue1 = new IssueDiscrete("issue1", 1, new String[]{"1", "2", "3"});
-//    Issue issue2 = new IssueDiscrete("issue2", 2, new String[]{"A", "B"});
-//    List<Issue> issues = Arrays.asList(new Issue[]{issue1, issue2});
-//
+
     User mockUser = Mockito.mock(User.class);
-//    UserModel mockUserModel = Mockito.mock(UserModel.class);
-//    BidRanking mockBidRank = Mockito.mock(BidRanking.class);
 
     private static Domain domain;
     private static Bid bid1;
@@ -41,25 +34,30 @@ public class LinearProgrammingPMSpec {
     public static void init(){
         try {
             Random random = new Random();
-            domain = new DomainImpl("/home/tpanyapiang/git/MSc/negotiation_agent/src/test/resources/test_domain.xml");
+            domain = new DomainImpl("src/test/resources/test_domain.xml");
             List<Issue> issues = domain.getIssues();
             Issue issue1 = issues.get(0);
             Issue issue2 = issues.get(1);
+            Issue issue3 = issues.get(2);
             bid1 = new Bid(domain, new HashMap<Integer, Value>() {{
                 put(issue1.getNumber(), ((IssueDiscrete)issue1).getValues().get(0));
                 put(issue2.getNumber(), ((IssueDiscrete)issue2).getValues().get(0));
+                put(issue3.getNumber(), ((IssueDiscrete)issue3).getValues().get(0));
             }});
             bid2 = new Bid(domain, new HashMap<Integer, Value>() {{
                 put(issue1.getNumber(), ((IssueDiscrete)issue1).getValues().get(2));
                 put(issue2.getNumber(), ((IssueDiscrete)issue2).getValues().get(1));
+                put(issue3.getNumber(), ((IssueDiscrete)issue3).getValues().get(1));
             }});
             bid3 = new Bid(domain, new HashMap<Integer, Value>() {{
                 put(issue1.getNumber(), ((IssueDiscrete)issue1).getValues().get(1));
                 put(issue2.getNumber(), ((IssueDiscrete)issue2).getValues().get(0));
+                put(issue3.getNumber(), ((IssueDiscrete)issue3).getValues().get(1));
             }});
             bid4 = new Bid(domain, new HashMap<Integer, Value>() {{
                 put(issue1.getNumber(), ((IssueDiscrete)issue1).getValues().get(2));
                 put(issue2.getNumber(), ((IssueDiscrete)issue2).getValues().get(0));
+                put(issue3.getNumber(), ((IssueDiscrete)issue3).getValues().get(1));
             }});
         }catch (Exception e){
             e.printStackTrace();
