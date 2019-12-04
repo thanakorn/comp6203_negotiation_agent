@@ -15,7 +15,7 @@ public class Agent37 extends StandardNegotiationAgent {
     @Override
     public void init(NegotiationInfo info){
         super.init(info);
-        this.concessionStrategy = TimeConcessionStrategies.CubicTimeConcessionStrategy(targetUtility, minTargetUtility);
+        this.concessionStrategy = TimeConcessionStrategies.CubicTimeConcessionStrategy(targetUtility, minUtility);
         if(hasPreferenceUncertainty()){
             // Pre-generate bid order
             List<Bid> currentBidOrder = userModel.getBidRanking().getBidOrder();
