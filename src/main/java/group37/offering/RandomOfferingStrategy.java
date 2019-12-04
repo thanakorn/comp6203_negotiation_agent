@@ -2,18 +2,15 @@ package group37.offering;
 
 import genius.core.Bid;
 import genius.core.parties.NegotiationInfo;
-import group37.preference.PreferenceModel;
-
-import java.util.Random;
+import genius.core.utility.AbstractUtilitySpace;
 
 public class RandomOfferingStrategy extends OfferingStrategy {
 
-    private PreferenceModel preferenceModel;
-    private Random rand;
+    private AbstractUtilitySpace utilitySpace;
 
-    public RandomOfferingStrategy(NegotiationInfo info, PreferenceModel preferenceModel) {
+    public RandomOfferingStrategy(NegotiationInfo info, AbstractUtilitySpace utilitySpace) {
         super(info);
-        this.preferenceModel = preferenceModel;
+        this.utilitySpace = utilitySpace;
     }
 
     public Bid generateBid(double targetUtility) {
@@ -23,7 +20,7 @@ public class RandomOfferingStrategy extends OfferingStrategy {
         // try 100 times to find a bid under the target utility
         do {
             randomBid = super.generateRandomBid();
-            util = preferenceModel.getUtility(randomBid);
+            util = utilitySpace.getUtility(randomBid);
         }
         while (util < targetUtility && i++ < 100);
         return randomBid;

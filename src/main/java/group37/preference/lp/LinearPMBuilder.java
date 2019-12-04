@@ -5,6 +5,7 @@ import genius.core.Domain;
 import genius.core.issue.Issue;
 import genius.core.issue.IssueDiscrete;
 import genius.core.issue.Value;
+import genius.core.uncertainty.BidRanking;
 import scpsolver.constraints.LinearBiggerThanEqualsConstraint;
 import scpsolver.constraints.LinearConstraint;
 import scpsolver.constraints.LinearEqualsConstraint;
@@ -19,9 +20,10 @@ public class LinearPMBuilder {
     private HashMap<Value, Integer> valueIndices;
     private double[][] deltaU;
     private int numSlackVar;
-    private List<Bid> bidOrder;
+    private BidRanking bidRank;
 
-    public LinearPMBuilder(Domain domain, List<Bid> bidOrder){
+    public LinearPMBuilder(Domain domain, BidRanking bidRank){
+        List<Bid> bidOrder = bidRank.getBidOrder();
         valueIndices = new HashMap<>();
         List<Value> allValues = new LinkedList<>();
 
@@ -35,7 +37,7 @@ public class LinearPMBuilder {
 
         if(bidOrder.size() > 0) deltaU = generateDeltaU(bidOrder);
         numSlackVar = bidOrder.size() - 1;
-        this.bidOrder = bidOrder;
+        this.bidRank = bidRank;
     }
 
     public double[] getObjective(){
@@ -74,14 +76,24 @@ public class LinearPMBuilder {
             constraints.add(new LinearBiggerThanEqualsConstraint(c, 0.0, "U" + i));
         }
 
-        // U(maxBid) = 1
-        Bid topBid = bidOrder.get(bidOrder.size() - 1);
-        double[] c = emptyConstraint.clone();
-        for(Issue i: topBid.getIssues()){
-            Value v = topBid.getValue(i);
-            c[valueIndices.get(v)] = 1.0;
+        // U(maxBid) = bidRank.getHighUtility
+        List<Bid> bidOrder = bidRank.getBidOrder();
+        Bid highBid = bidOrder.get(bidOrder.size() - 1);
+        double[] cHighBid = emptyConstraint.clone();
+        for(Issue i: highBid.getIssues()){
+            Value v = highBid.getValue(i);
+            cHighBid[valueIndices.get(v)] = 1.0;
         }
-        constraints.add(new LinearEqualsConstraint(c, 1.0, "UMAX"));
+        constraints.add(new LinearEqualsConstraint(cHighBid, bidRank.getHighUtility(), "UMAX"));
+
+        // U(minBid) = bidRank.getLowUtility
+        Bid lowBid = bidOrder.get(0);
+        double[] cLowBid = emptyConstraint.clone();
+        for(Issue i: lowBid.getIssues()){
+            Value v = lowBid.getValue(i);
+            cLowBid[valueIndices.get(v)] = 1.0;
+        }
+        constraints.add(new LinearEqualsConstraint(cLowBid, bidRank.getLowUtility(), "UMIN"));
 
         return constraints;
     }

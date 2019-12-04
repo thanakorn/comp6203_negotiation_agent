@@ -14,8 +14,6 @@ import group37.offering.OfferingStrategy;
 import group37.opponent.AdaptiveFrequencyOM;
 import group37.opponent.OpponentModel;
 import group37.preference.PreferenceModel;
-import group37.preference.RankDependentPM;
-import group37.preference.StaticPM;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +25,6 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
     protected int MINIMUM_BID_ORDER_SIZE = 10;
 
     protected double discountFactor;
-    protected double initialReservedValue;
 
     protected Bid lastOffer;
     protected double targetUtility;
@@ -61,8 +58,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
             minUtility = DEFAULT_MIN_TARGET_UTILITY;
         }
         discountFactor = utilitySpace.getDiscountFactor();
-        initialReservedValue = utilitySpace.getReservationValue();
-        minUtility = Math.max(initialReservedValue, minUtility);
+        minUtility = Math.max(utilitySpace.getReservationValue(), minUtility);
 
         opponentModel = new AdaptiveFrequencyOM(getDomain(), 1000, 0.9); //new JonnyBlackOM(getDomain(), 0.5, 10);
         concessionStrategy = new BoulwareStrategy(maxUtility, minUtility, 0.1);
@@ -70,14 +66,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
         System.out.println("Max utility : " + maxUtility);
         System.out.println("Minimum target utility : " + minUtility);
         System.out.println("Discount factor : " + discountFactor);
-        System.out.println("Reserved value : " + initialReservedValue);
-
-        if (hasPreferenceUncertainty()) {
-            System.out.println("Has preference uncertainty, initiate UserModel");
-            preferenceModel = new RankDependentPM(info.getUser(), info.getUserModel(), minUtility, MINIMUM_BID_ORDER_SIZE);
-        } else {
-            preferenceModel = new StaticPM(info.getUtilitySpace());
-        }
+        System.out.println("Reserved value : " + utilitySpace.getReservationValue());
 
 
         // Add all bids in the domain to the list
@@ -88,7 +77,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
             allBids.add(bid);
         }
 
-        offeringStrategy = new HybridOfferingStrategy(info, preferenceModel, opponentModel, allBids);
+        offeringStrategy = new HybridOfferingStrategy(info, getUtilitySpace(), opponentModel, allBids);
     }
 
     @Override
@@ -96,7 +85,10 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
         if (action instanceof Offer) {
             lastOffer = ((Offer) action).getBid();
             /* Update user and opponent models */
-            preferenceModel.updateModel(lastOffer);
+            if (hasPreferenceUncertainty()) {
+                /* Update user and opponent models */
+                preferenceModel.updateModel(lastOffer);
+            }
             opponentModel.updateModel(lastOffer);
 
         }
@@ -112,7 +104,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
         if (lastOffer != null) {
             double time = timeline.getTime();
             double targetUtility = concessionStrategy.getTargetUtility(time);
-            double utility = preferenceModel.getUtility(lastOffer);
+            double utility = getUtility(lastOffer);
             double opponentUtility = opponentModel.getUtility(lastOffer);
 
             System.out.println("Estimated last offer utility : " + utility);
@@ -139,7 +131,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
         System.out.println("Action taken : " + action);
         if (action instanceof DefaultActionWithBid) {
             DefaultActionWithBid lastBid = (DefaultActionWithBid) action;
-            System.out.println("Counter offer utility : " + preferenceModel.getUtility(lastBid.getBid()));
+            System.out.println("Counter offer utility : " + getUtility(lastBid.getBid()));
             System.out.println("Counter offer opponent utility : " + opponentModel.getUtility(lastBid.getBid()));
         }
         return action;
@@ -151,6 +143,10 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
      */
     @Override
     public AbstractUtilitySpace estimateUtilitySpace() {
+//        System.out.println("Max Utility : " + userModel.getBidRanking().getHighUtility());
+//        System.out.println("Min Utility : " + userModel.getBidRanking().getLowUtility());
+//        preferenceModel = new RankDependentPM(getDomain(), user, userModel, minUtility - 0.1, 10);
+//        return preferenceModel.estimateUtilitySpace();
         return super.estimateUtilitySpace();
     }
 
