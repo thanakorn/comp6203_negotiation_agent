@@ -11,7 +11,6 @@ import group37.concession.BoulwareStrategy;
 import group37.concession.ConcessionStrategy;
 import group37.offering.HybridOfferingStrategy;
 import group37.offering.OfferingStrategy;
-import group37.offering.RandomOfferingStrategy;
 import group37.opponent.AdaptiveFrequencyOM;
 import group37.opponent.OpponentModel;
 import group37.preference.PreferenceModel;
@@ -134,7 +133,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
                 }
             }
         } else {
-            action = new Offer(getPartyId(), ((HybridOfferingStrategy)offeringStrategy).generateRandomBid(maxUtility));
+            action = new Offer(getPartyId(), offeringStrategy.generateBid(maxUtility));
         }
 
         System.out.println("Action taken : " + action);
