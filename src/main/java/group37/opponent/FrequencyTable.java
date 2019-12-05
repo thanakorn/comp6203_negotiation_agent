@@ -35,6 +35,14 @@ public class FrequencyTable {
         frequencies++;
     }
 
+    public void decreaseFrequency(Bid bid) {
+        bid.getIssues().forEach(issue -> {
+            Value v = bid.getValue(issue);
+            frequencyTable.get(issue).put(v, frequencyTable.get(issue).get(v) - 1);
+        });
+        frequencies--;
+    }
+
     public int getFrequency(Issue i, Value v) {
         return frequencyTable.get(i).get(v);
     }

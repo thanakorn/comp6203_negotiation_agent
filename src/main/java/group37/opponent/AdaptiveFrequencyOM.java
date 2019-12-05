@@ -9,10 +9,7 @@ import genius.core.issue.ValueDiscrete;
 import genius.core.utility.AdditiveUtilitySpace;
 import genius.core.utility.EvaluatorDiscrete;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class AdaptiveFrequencyOM implements OpponentModel {
 
@@ -20,7 +17,7 @@ public class AdaptiveFrequencyOM implements OpponentModel {
     private FrequencyTable frequencyTable;
     private double bidSize;
     private double exponentialFilter;
-    private ArrayList<Bid> opponentBids;
+    private LinkedList<Bid> opponentBids = new LinkedList<>();
     private ArrayList<HashMap<Issue, Double>> weightHistory;
 
     public AdaptiveFrequencyOM(Domain domain, int size, double expFilter) {
@@ -38,7 +35,12 @@ public class AdaptiveFrequencyOM implements OpponentModel {
 
     @Override
     public void updateModel(Bid opponentBid) {
+        opponentBids.add(opponentBid);
         frequencyTable.updateFrequency(opponentBid);
+        if (opponentBids.size() == bidSize) {
+            Bid removedBid = opponentBids.remove(0);
+            frequencyTable.decreaseFrequency(removedBid);
+        }
         calculateOpponentUtility();
     }
 
@@ -56,7 +58,7 @@ public class AdaptiveFrequencyOM implements OpponentModel {
                 if (totalFrequency != 0)
                     weights[issue.getNumber() - 1] += Math.pow(frequencyTable.getFrequency(issue, value) / totalFrequency, 2);
                 else
-                    weights[issue.getNumber() - 1] += 1 / (double)values.size();
+                    weights[issue.getNumber() - 1] += 1 / (double) values.size();
             }
             opponentUtilitySpace.addEvaluator(issue, new EvaluatorDiscrete(evaluator));
         }
