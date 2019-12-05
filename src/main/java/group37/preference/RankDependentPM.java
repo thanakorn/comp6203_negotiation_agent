@@ -17,9 +17,9 @@ public class RankDependentPM implements PreferenceModel {
     private User user;
     private UserModel userModel;
     private int minBidOrderSize;
-    private  double unknownUtility;
+    private double unknownUtility;
 
-    public RankDependentPM(Domain domain, User user, UserModel userModel, double unknownUtility, int minBidOrderSize){
+    public RankDependentPM(Domain domain, User user, UserModel userModel, double unknownUtility, int minBidOrderSize) {
         this.domain = domain;
         this.user = user;
         this.userModel = userModel;
@@ -33,8 +33,8 @@ public class RankDependentPM implements PreferenceModel {
             @Override
             public double getUtility(Bid bid) {
                 List<Bid> bidOrder = userModel.getBidRanking().getBidOrder();
-                if(bidOrder.size() >= minBidOrderSize)
-                    return (double)(bidOrder.indexOf(bid) + 1) / (double) bidOrder.size();
+                if (bidOrder.size() >= minBidOrderSize)
+                    return (double) (bidOrder.indexOf(bid) + 1) / (double) bidOrder.size();
                 else
                     return unknownUtility;
             }
@@ -58,8 +58,8 @@ public class RankDependentPM implements PreferenceModel {
     }
 
     @Override
-    public void updateModel(Bid bid){
-        if(!userModel.getBidRanking().getBidOrder().contains(bid)){
+    public void updateModel(Bid bid) {
+        if (!userModel.getBidRanking().getBidOrder().contains(bid)) {
             UserModel newUserModel = user.elicitRank(bid, userModel);
             userModel = newUserModel;
         }

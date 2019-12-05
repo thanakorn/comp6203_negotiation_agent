@@ -5,6 +5,7 @@ import genius.core.Domain;
 import genius.core.issue.Issue;
 import genius.core.issue.IssueDiscrete;
 import genius.core.issue.Value;
+import group37.opponent.FrequencyTable;
 import group37.opponent.OpponentModel;
 
 import java.util.ArrayList;
@@ -21,27 +22,27 @@ public class JonnyBlackOM implements OpponentModel {
     private double initUtility;
     private int minimumFrequency;
 
-    public JonnyBlackOM(Domain domain, double initUtility, int minimumFrequency){
+    public JonnyBlackOM(Domain domain, double initUtility, int minimumFrequency) {
         ft = new FrequencyTable(domain);
         this.initUtility = initUtility;
         this.minimumFrequency = minimumFrequency;
         issueValues = new HashMap<>();
-        for(Issue i : domain.getIssues()){
-            IssueDiscrete issueDiscrete = (IssueDiscrete)i;
+        for (Issue i : domain.getIssues()) {
+            IssueDiscrete issueDiscrete = (IssueDiscrete) i;
             List<Value> values = new ArrayList<>();
-            for(Value v : issueDiscrete.getValues()){
+            for (Value v : issueDiscrete.getValues()) {
                 values.add(v);
             }
             issueValues.put(i, values);
         }
     }
 
-    public void updateModel(Bid opponentBid){
+    public void updateModel(Bid opponentBid) {
         ft.updateFrequency(opponentBid);
     }
 
-    public double getUtility(Bid opponentBid){
-        if(ft.getTotalFrequency() > minimumFrequency) {
+    public double getUtility(Bid opponentBid) {
+        if (ft.getTotalFrequency() > minimumFrequency) {
             Map<Issue, Double> weights = issueValues.keySet().stream()
                     .collect(Collectors.toMap(Function.identity(), i -> getWeight(i)));
 
@@ -53,22 +54,22 @@ public class JonnyBlackOM implements OpponentModel {
             return opponentBid.getIssues().stream()
                     .mapToDouble(issue -> normalizedWeights.get(issue) * getValue(issue, opponentBid.getValue(issue)))
                     .sum();
-        }else{
+        } else {
             return initUtility;
         }
     }
 
-    private double getValue(Issue issue, Value v){
+    private double getValue(Issue issue, Value v) {
         int rank = ft.getValueRank(issue, v);
         int numOptions = issueValues.get(issue).size();
-        return ((double)(numOptions - rank + 1) / (double) numOptions);
+        return ((double) (numOptions - rank + 1) / (double) numOptions);
     }
 
-    private double getWeight(Issue issue){
+    private double getWeight(Issue issue) {
         Integer totalFrequency = ft.getTotalFrequency();
-        if(totalFrequency == 0) return 1.0 / (double)issueValues.keySet().size();
+        if (totalFrequency == 0) return 1.0 / (double) issueValues.keySet().size();
         return issueValues.get(issue).stream()
-                .mapToDouble(v -> Math.pow((double)ft.getFrequency(issue, v) / (double)totalFrequency, 2))
+                .mapToDouble(v -> Math.pow((double) ft.getFrequency(issue, v) / (double) totalFrequency, 2))
                 .sum();
     }
 }
