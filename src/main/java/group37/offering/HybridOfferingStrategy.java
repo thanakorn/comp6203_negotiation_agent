@@ -1,6 +1,7 @@
 package group37.offering;
 
 import genius.core.Bid;
+import genius.core.Domain;
 import genius.core.parties.NegotiationInfo;
 import genius.core.utility.AbstractUtilitySpace;
 import group37.opponent.AdaptiveFrequencyOM;
@@ -15,15 +16,15 @@ public class HybridOfferingStrategy extends OfferingStrategy {
     private OpponentModel opponentModel;
     private List<Bid> bids;
 
-    public HybridOfferingStrategy(NegotiationInfo info, AbstractUtilitySpace utilitySpace, OpponentModel opponentModel, List<Bid> initialBids) {
-        super(info);
+    public HybridOfferingStrategy(Domain domain, AbstractUtilitySpace utilitySpace, OpponentModel opponentModel, List<Bid> initialBids) {
+        super(domain);
         this.utilitySpace = utilitySpace;
         this.opponentModel = opponentModel;
         this.bids = initialBids;
     }
 
     @Override
-    public Bid generateBid(double targetUtility) {
+    public Bid generateBid(double targetUtility, List<Bid> offerSpace) {
         System.out.println(((AdaptiveFrequencyOM) opponentModel).opponentUtilitySpace.toString());
         Bid offer = null;
         double highestOppUtil = -1.0;
@@ -36,18 +37,5 @@ public class HybridOfferingStrategy extends OfferingStrategy {
             }
         }
         return offer;
-    }
-
-    public Bid generateRandomBid(double targetUtility) {
-        Bid randomBid;
-        double util;
-        int i = 0;
-        // try 100 times to find a bid under the target utility
-        do {
-            randomBid = super.generateRandomBid();
-            util = utilitySpace.getUtility(randomBid);
-        }
-        while (util < targetUtility && i++ < 100);
-        return randomBid;
     }
 }

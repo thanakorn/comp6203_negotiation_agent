@@ -18,10 +18,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -42,18 +39,33 @@ public class RandomOfferingStrategySpec {
 
     @Test
     public void testConstructor(){
-        new RandomOfferingStrategy(domain, Mockito.mock(OfferGenerator.class), 5);
+        new RandomOfferingStrategy(domain, utilitySpace);
     }
 
     @Test
     public void testGenerateBid(){
         OfferGenerator generator = new RandomOfferGenerator(domain, utilitySpace);
-        OfferingStrategy o = new RandomOfferingStrategy(domain, generator, 5);
-        Bid bid1 = o.generateBid(0.9);
-        Bid bid2 = o.generateBid(0.8);
-        Bid bid3 = o.generateBid(0.95);
+        OfferingStrategy o = new RandomOfferingStrategy(domain, utilitySpace);
+        List<Bid> offerSpace = generateOfferSpace(0.8, utilitySpace);
+        Bid bid1 = o.generateBid(0.9, offerSpace);
+        Bid bid2 = o.generateBid(0.8, offerSpace);
+        Bid bid3 = o.generateBid(0.95, offerSpace);
         assertTrue(utilitySpace.getUtility(bid1) >= 0.9);
         assertTrue(utilitySpace.getUtility(bid2) >= 0.8);
         assertTrue(utilitySpace.getUtility(bid3) >= 0.95);
     }
+
+    private List<Bid> generateOfferSpace(double minimumUtility, AbstractUtilitySpace utilitySpace){
+        List<Bid> bids = new LinkedList<>();
+        Random random = new Random();
+        for(int i = 0; i < 10; i++){
+            Bid bid = domain.getRandomBid(random);
+            while(utilitySpace.getUtility(bid) < minimumUtility){
+                bid = domain.getRandomBid(random);
+            }
+            bids.add(bid);
+        }
+        return bids;
+    }
+
 }

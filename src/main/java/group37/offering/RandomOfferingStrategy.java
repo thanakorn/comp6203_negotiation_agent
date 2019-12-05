@@ -19,16 +19,18 @@ import java.util.Random;
 public class RandomOfferingStrategy extends OfferingStrategy{
 
     private static Random random = new Random();
+    private AbstractUtilitySpace utilitySpace;
 
-    private OfferGenerator offerGenerator;
-
-    public RandomOfferingStrategy(Domain domain, OfferGenerator offerGenerator, int numOfferGenerate){
-        super(domain, offerGenerator, numOfferGenerate);
-        this.offerGenerator = offerGenerator;
+    public RandomOfferingStrategy(Domain domain, AbstractUtilitySpace utilitySpace){
+        super(domain);
+        this.utilitySpace = utilitySpace;
     }
 
-    public Bid generateBid(double targetUtility) {
-        List<Bid> acceptableBids = offerGenerator.generateOffers(targetUtility, numOfferGenerate);
-        return acceptableBids.get(random.nextInt(acceptableBids.size()));
+    public Bid generateBid(double targetUtility, List<Bid> offerSpace) {
+        Bid bid = offerSpace.get(0);
+        while(utilitySpace.getUtility(bid) < targetUtility) {
+            bid = offerSpace.get(random.nextInt(offerSpace.size()));
+        }
+        return bid;
     }
 }

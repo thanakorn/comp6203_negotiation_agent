@@ -7,21 +7,18 @@ import genius.core.parties.NegotiationInfo;
 import group37.offering.generator.OfferGenerator;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 public abstract class OfferingStrategy {
 
 
     protected Domain domain;
-    protected OfferGenerator offerGenerator;
-    protected  int numOfferGenerate;
 
-    public OfferingStrategy(Domain domain, OfferGenerator offerGenerator, int numOfferGenerate){
+    public OfferingStrategy(Domain domain){
         this.domain = domain;
-        this.offerGenerator = offerGenerator;
-        this.numOfferGenerate = numOfferGenerate;
     }
 
-    public abstract Bid generateBid(double targetUtility);
+    public abstract Bid generateBid(double targetUtility, List<Bid> offerSpace);
 
 }

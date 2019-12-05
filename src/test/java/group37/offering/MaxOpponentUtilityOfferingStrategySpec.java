@@ -31,7 +31,7 @@ public class MaxOpponentUtilityOfferingStrategySpec {
 
     @Test
     public void testConstructor(){
-        new MaxOpponentUtilityOfferingStrategy(domain, Mockito.mock(OpponentModel.class), Mockito.mock(OfferGenerator.class), 5);
+        new MaxOpponentUtilityOfferingStrategy(domain, Mockito.mock(OpponentModel.class));
     }
 
     @Test
@@ -45,8 +45,8 @@ public class MaxOpponentUtilityOfferingStrategySpec {
         Mockito.when(om.getUtility(bids.get(2))).thenReturn(0.65);
         Mockito.when(om.getUtility(bids.get(3))).thenReturn(0.6);
 
-        OfferingStrategy s = new MaxOpponentUtilityOfferingStrategy(domain, om, generator, 4);
-        assertEquals(bids.get(2), s.generateBid(0.7));
+        OfferingStrategy s = new MaxOpponentUtilityOfferingStrategy(domain, om);
+        assertEquals(bids.get(2), s.generateBid(0.7, bids));
     }
 
 

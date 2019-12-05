@@ -17,16 +17,15 @@ public class MaxOpponentUtilityOfferingStrategy extends OfferingStrategy{
 
     private OpponentModel opponentModel;
 
-    public MaxOpponentUtilityOfferingStrategy(Domain domain, OpponentModel opponentModel, OfferGenerator offerGenerator, int numOfferGenerate) {
-        super(domain, offerGenerator, numOfferGenerate);
+    public MaxOpponentUtilityOfferingStrategy(Domain domain, OpponentModel opponentModel) {
+        super(domain);
         this.opponentModel = opponentModel;
     }
 
     @Override
-    public Bid generateBid(double targetUtility) {
-        List<Bid> acceptableBids = offerGenerator.generateOffers(targetUtility, numOfferGenerate);
+    public Bid generateBid(double targetUtility, List<Bid> offerSpace) {
         Bid highestOpponentBid = null;
-        for(Bid bid : acceptableBids){
+        for(Bid bid : offerSpace){
             if(highestOpponentBid == null || opponentModel.getUtility(bid) > opponentModel.getUtility(highestOpponentBid)){
                 highestOpponentBid = bid;
             }
