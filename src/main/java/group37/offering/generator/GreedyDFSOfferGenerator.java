@@ -24,7 +24,7 @@ public class GreedyDFSOfferGenerator extends AbstractOfferGenerator{
         valuesOrder = new HashMap<>();
         for(Issue i: domain.getIssues()){
             issueOrder.add(i);
-            List<ValueDiscrete> values = ((IssueDiscrete)i).getValues();
+            List<ValueDiscrete> values = new ArrayList<>(((IssueDiscrete)i).getValues());
             EvaluatorDiscrete e = (EvaluatorDiscrete) additiveUtilitySpace.getEvaluator(i);
             values.sort(Comparator.comparing(v -> e.getValue(v)));
             valuesOrder.put(i, values);
