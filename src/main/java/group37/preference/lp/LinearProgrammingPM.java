@@ -16,7 +16,6 @@ import scpsolver.constraints.LinearConstraint;
 import scpsolver.lpsolver.LinearProgramSolver;
 import scpsolver.lpsolver.SolverFactory;
 import scpsolver.problems.LinearProgram;
-
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,8 +27,6 @@ public class LinearProgrammingPM implements PreferenceModel {
     private UserModel userModel;
     private List<Issue> allIssues;
     private List<Value> allValues;
-    private HashMap<Value, Double> valuesUtility;
-    private HashMap<Issue, Double> issueWeights;
 
     public LinearProgrammingPM(Domain domain, User user, UserModel userModel){
         this.domain = domain;
@@ -78,7 +75,6 @@ public class LinearProgrammingPM implements PreferenceModel {
         lp.setMinProblem(true);
         LinearProgramSolver solver  = SolverFactory.newDefault();
         double[] solution = solver.solve(lp);
-
         for(int i = 0; i < allValues.size(); i++){
             Value v = allValues.get(i);
             utilities.put(v, solution[builder.getValueIndex(v)]);
