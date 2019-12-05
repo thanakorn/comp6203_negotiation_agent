@@ -54,7 +54,7 @@ public class Agent37 extends AbstractNegotiationParty {
         if(numBidGenerate > MAX_BID_GENERATE) numBidGenerate = MAX_BID_GENERATE;
         else if(numBidGenerate < MIN_BID_GENERATE) numBidGenerate = MIN_BID_GENERATE;
 
-        OfferGenerator offerGenerator = new SimulatedAnnealingOfferGenerator(getDomain(), utilitySpace);
+        OfferGenerator offerGenerator = new GreedyDFSOfferGenerator(getDomain(), utilitySpace);
         offerSubSpace = offerGenerator.generateOffers( (minUtility + maxUtility) / 2.0, numBidGenerate);
         this.offeringStrategy = new MaxOpponentUtilityOfferingStrategy(getDomain(), opponentModel);
     }
@@ -72,8 +72,9 @@ public class Agent37 extends AbstractNegotiationParty {
                 else                      action = new EndNegotiation(getPartyId());
             }else{
                 List<Bid> targetOffers = selectTargetOffers(targetUtility);
+                Bid counterOffer = offeringStrategy.generateBid(targetUtility, targetOffers);
                 if(utility >= targetUtility) action = new Accept(getPartyId(), lastOffer);
-                else                         action = new Offer(getPartyId(), offeringStrategy.generateBid(targetUtility, targetOffers));
+                else                         action = new Offer(getPartyId(), counterOffer);
             }
         }else{
             action = new Offer(getPartyId(), offerSubSpace.get(offerSubSpace.size() - 1));
