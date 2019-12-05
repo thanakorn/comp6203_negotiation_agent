@@ -15,7 +15,7 @@ public class RandomOfferGenerator extends AbstractOfferGenerator{
     }
 
     @Override
-    public List<Bid> generateOffers(double minimumUtility, int maxBidNumber) {
+    public List<Bid> generateOffers(double minimumUtility, long maxBidNumber) {
         List<Bid> bids = new LinkedList<>();
         for(int i = 0; i < maxBidNumber; i++){
             int round = 0;

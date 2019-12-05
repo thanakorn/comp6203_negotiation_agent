@@ -4,14 +4,14 @@ import genius.core.Domain;
 import genius.core.issue.Issue;
 import genius.core.issue.Value;
 import genius.core.issue.ValueDiscrete;
-import genius.core.utility.AdditiveUtilitySpace;
+import genius.core.utility.AbstractUtilitySpace;
 import java.util.*;
 
 public class SimulatedAnnealingOfferGenerator extends GreedyDFSOfferGenerator {
 
     private static Random random = new Random();
 
-    public SimulatedAnnealingOfferGenerator(Domain domain, AdditiveUtilitySpace utilitySpace) {
+    public SimulatedAnnealingOfferGenerator(Domain domain, AbstractUtilitySpace utilitySpace) {
         super(domain, utilitySpace);
     }
 

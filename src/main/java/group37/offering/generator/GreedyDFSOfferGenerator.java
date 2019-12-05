@@ -33,21 +33,21 @@ public class GreedyDFSOfferGenerator extends AbstractOfferGenerator{
     }
 
     @Override
-    public List<Bid> generateOffers(double minimumUtility, int maxBidNumber) {
-        List<Bid> solutions = new LinkedList<>();
+    public List<Bid> generateOffers(double minimumUtility, long maxBidNumber) {
+        List<Bid> offers = new LinkedList<>();
         fringe = new Stack<>();
         fringe.add(new HashMap<>());
         do{
             HashMap<Integer, Value> node = fringe.pop();
             if(node.size() == issueOrder.size()){
                 Bid bid = new Bid(domain, node);
-                if(utilitySpace.getUtility(bid) >= minimumUtility) solutions.add(bid);
+                if(utilitySpace.getUtility(bid) >= minimumUtility) offers.add(bid);
             }else{
                 expand(node);
             }
-        }while(solutions.size() < maxBidNumber && !fringe.isEmpty());
-
-        return solutions;
+        }while(offers.size() < maxBidNumber && !fringe.isEmpty());
+        offers.sort(Comparator.comparing(o -> utilitySpace.getUtility(o), Comparator.reverseOrder()));
+        return offers;
     }
 
     protected void expand(HashMap<Integer, Value> node){
