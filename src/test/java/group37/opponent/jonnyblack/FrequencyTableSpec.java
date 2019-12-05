@@ -6,6 +6,7 @@ import genius.core.issue.Issue;
 import genius.core.issue.IssueDiscrete;
 import genius.core.issue.Value;
 import genius.core.issue.ValueDiscrete;
+import group37.opponent.FrequencyTable;
 import org.junit.Test;
 import org.mockito.Mockito;
 import java.util.Arrays;
