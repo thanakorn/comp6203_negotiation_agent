@@ -5,6 +5,8 @@ import genius.core.Bid;
 import genius.core.actions.*;
 import genius.core.parties.AbstractNegotiationParty;
 import genius.core.parties.NegotiationInfo;
+import genius.core.uncertainty.BidRanking;
+import genius.core.uncertainty.UserModel;
 import genius.core.utility.AbstractUtilitySpace;
 import group37.concession.BoulwareStrategy;
 import group37.concession.ConcessionStrategy;
@@ -16,8 +18,8 @@ import group37.offering.generator.SimulatedAnnealingOfferGenerator;
 import group37.opponent.AdaptiveFrequencyOM;
 import group37.opponent.OpponentModel;
 import group37.preference.PreferenceModel;
+import group37.preference.lp.LinearPreferenceModel;
 import group37.preference.lp.LinearProgrammingPM;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -30,8 +32,8 @@ public class Agent37 extends AbstractNegotiationParty {
     protected final double PERCENT_BID_GENERATE = 0.2;
     protected final int MAX_BID_GENERATE = 1000;
     protected final int MIN_BID_GENERATE = 20;
-    protected final double MAX_ELICIT_COST = 0.15;
-    protected final int MAX_ELICITATION_ROUND = 500;
+    protected final double MAX_ELICIT_COST = 0.1;
+    protected final int MAX_ELICITATION_ROUND = 100;
 
     private double maxUtility = 1.0;
     private double minUtility = 0.4;
@@ -55,7 +57,7 @@ public class Agent37 extends AbstractNegotiationParty {
         else if(numBidGenerate < MIN_BID_GENERATE) numBidGenerate = MIN_BID_GENERATE;
 
         OfferGenerator offerGenerator = new GreedyDFSOfferGenerator(getDomain(), utilitySpace);
-        offerSubSpace = offerGenerator.generateOffers( (minUtility + maxUtility) / 2.0, numBidGenerate);
+        offerSubSpace = offerGenerator.generateOffers( (minUtility + maxUtility) / 2.0, numBidGenerate); // Sorted from max to min
         this.offeringStrategy = new MaxOpponentUtilityOfferingStrategy(getDomain(), opponentModel);
     }
 
@@ -77,7 +79,7 @@ public class Agent37 extends AbstractNegotiationParty {
                 else                         action = new Offer(getPartyId(), counterOffer);
             }
         }else{
-            action = new Offer(getPartyId(), offerSubSpace.get(offerSubSpace.size() - 1));
+            action = new Offer(getPartyId(), offerSubSpace.get(0));
         }
         displaySummary();
         System.out.println("Action taken              : " + action);
@@ -103,15 +105,20 @@ public class Agent37 extends AbstractNegotiationParty {
         /**
          * Pre-generate bid order
          */
-        int counter = 0;
-        Random random = new Random();
-        do{
-            Bid bid = getDomain().getRandomBid(random);
-            userModel = user.elicitRank(bid, userModel);
-            counter++;
-        }while(user.getTotalBother() < MAX_ELICIT_COST && counter < MAX_ELICITATION_ROUND);
-        this.preferenceModel = new LinearProgrammingPM(getDomain(), user, userModel);
-        return this.preferenceModel.estimateUtilitySpace();
+        try{
+            int counter = 0;
+            Random random = new Random();
+            do{
+                Bid bid = getDomain().getRandomBid(random);
+                userModel = user.elicitRank(bid, userModel);
+                counter++;
+            }while(user.getTotalBother() < MAX_ELICIT_COST && counter < MAX_ELICITATION_ROUND);
+            this.preferenceModel = new LinearPreferenceModel(getDomain(), user, userModel);
+            return this.preferenceModel.estimateUtilitySpace();
+        }catch (Exception ex){
+            ex.printStackTrace();
+            return super.estimateUtilitySpace();
+        }
     }
 
     @Override
@@ -121,8 +128,13 @@ public class Agent37 extends AbstractNegotiationParty {
 
     private List<Bid> selectTargetOffers(double targetUtility){
         List<Bid> acceptableOffers = new LinkedList<>();
-        for(Bid b : offerSubSpace){
-            if(getUtility(b) >= targetUtility) acceptableOffers.add(b);
+        try{
+            acceptableOffers.add(utilitySpace.getMaxUtilityBid());
+            for(Bid b : offerSubSpace){
+                if(getUtility(b) >= targetUtility) acceptableOffers.add(b);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
         return acceptableOffers;
     }
