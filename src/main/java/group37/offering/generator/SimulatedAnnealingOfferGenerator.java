@@ -17,18 +17,26 @@ public class SimulatedAnnealingOfferGenerator extends GreedyDFSOfferGenerator {
 
     @Override
     protected void expand(HashMap<Integer, Value> node){
+        int nextIssueIndex = node.size();
         // Temperature will reduce when move to next important issue, and probShuffle will reduce quadratically with temperature
         double temperature = 1.0 - ((double)node.size() / (double) issueOrder.size());
         double probShuffle = Math.pow(temperature, 2);
 
-        int nextIssueIndex = node.size();
-        Issue nextIssue = issueOrder.get(nextIssueIndex);
         double rand = random.nextDouble();
+
+        List<Issue> issuesToExpand = issueOrder;
+        if(probShuffle > rand) {
+            issuesToExpand = new LinkedList<>(issueOrder);
+            Collections.shuffle(issuesToExpand);
+        }
+        Issue nextIssue = issuesToExpand.get(nextIssueIndex);
+
         List<ValueDiscrete> valuesToExpand = valuesOrder.get(nextIssue);
         if(probShuffle > rand){
             valuesToExpand = new LinkedList<>(valuesToExpand);
             Collections.shuffle(valuesToExpand);
         }
+
         for(ValueDiscrete v : valuesToExpand){
             HashMap<Integer, Value> newNode = new HashMap<>(node);
             newNode.put(nextIssue.getNumber(), v);

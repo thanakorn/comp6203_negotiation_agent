@@ -10,11 +10,7 @@ import group37.offering.generator.RandomOfferGenerator;
 import group37.offering.generator.SimulatedAnnealingOfferGenerator;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-
 import static org.junit.Assert.*;
 
 public class OfferGeneratorSpec {
@@ -45,6 +41,10 @@ public class OfferGeneratorSpec {
         int maxOfferNumber = 5;
         List<Bid> bids = generator.generateOffers(minimumUtility, maxOfferNumber);
         assertTrue(bids.size() <= maxOfferNumber);
+        assertTrue(utilitySpace.getUtility(bids.get(0)) >= utilitySpace.getUtility(bids.get(1)));
+        assertTrue(utilitySpace.getUtility(bids.get(1)) >= utilitySpace.getUtility(bids.get(2)));
+        assertTrue(utilitySpace.getUtility(bids.get(2)) >= utilitySpace.getUtility(bids.get(3)));
+        assertTrue(utilitySpace.getUtility(bids.get(3)) >= utilitySpace.getUtility(bids.get(4)));
         for(Bid bid : bids){
             assertTrue(utilitySpace.getUtility(bid) >= minimumUtility);
         }
@@ -53,6 +53,7 @@ public class OfferGeneratorSpec {
         int maxOfferNumber2 = 10;
         List<Bid> bids2 = generator.generateOffers(minimumUtility2, maxOfferNumber2);
         assertTrue(bids2.size() <= maxOfferNumber2);
+        assertEquals(utilitySpace.getUtility(bids2.get(0)), 1.0, 0.01); // Must have the optimal offer
         for(Bid bid : bids2){
             assertTrue(utilitySpace.getUtility(bid) >= minimumUtility2);
         }
@@ -65,6 +66,10 @@ public class OfferGeneratorSpec {
         int maxOfferNumber = 7;
         List<Bid> bids = generator.generateOffers(minimumUtility, maxOfferNumber);
         assertTrue(bids.size() <= maxOfferNumber);
+        assertTrue(utilitySpace.getUtility(bids.get(0)) >= utilitySpace.getUtility(bids.get(1)));
+        assertTrue(utilitySpace.getUtility(bids.get(1)) >= utilitySpace.getUtility(bids.get(2)));
+        assertTrue(utilitySpace.getUtility(bids.get(2)) >= utilitySpace.getUtility(bids.get(3)));
+        assertTrue(utilitySpace.getUtility(bids.get(3)) >= utilitySpace.getUtility(bids.get(4)));
         for(Bid bid : bids){
             assertTrue(utilitySpace.getUtility(bid) >= minimumUtility);
         }
@@ -85,6 +90,10 @@ public class OfferGeneratorSpec {
         int maxOfferNumber = 7;
         List<Bid> bids = generator.generateOffers(minimumUtility, maxOfferNumber);
         assertTrue(bids.size() <= maxOfferNumber);
+        assertTrue(utilitySpace.getUtility(bids.get(0)) >= utilitySpace.getUtility(bids.get(1)));
+        assertTrue(utilitySpace.getUtility(bids.get(1)) >= utilitySpace.getUtility(bids.get(2)));
+        assertTrue(utilitySpace.getUtility(bids.get(2)) >= utilitySpace.getUtility(bids.get(3)));
+        assertTrue(utilitySpace.getUtility(bids.get(3)) >= utilitySpace.getUtility(bids.get(4)));
         for(Bid bid : bids){
             assertTrue(utilitySpace.getUtility(bid) >= minimumUtility);
         }
