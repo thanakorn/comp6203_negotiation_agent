@@ -18,6 +18,7 @@ import group37.offering.generator.SimulatedAnnealingOfferGenerator;
 import group37.opponent.AdaptiveFrequencyOM;
 import group37.opponent.OpponentModel;
 import group37.preference.PreferenceModel;
+import group37.preference.UserModelScaler;
 import group37.preference.lp.LinearPreferenceModel;
 import group37.preference.lp.LinearProgrammingPM;
 import java.util.LinkedList;
@@ -33,7 +34,8 @@ public class Agent37 extends AbstractNegotiationParty {
     protected final int MAX_BID_GENERATE = 1000;
     protected final int MIN_BID_GENERATE = 20;
     protected final double MAX_ELICIT_COST = 0.1;
-    protected final int MAX_ELICITATION_ROUND = 100;
+    protected final int MAX_ELICITATION_ROUND = 50;
+    protected final int MAX_BID_ORDER_SIZE = 100;
 
     private double maxUtility = 1.0;
     private double minUtility = 0.4;
@@ -106,15 +108,17 @@ public class Agent37 extends AbstractNegotiationParty {
          * Pre-generate bid order
          */
         try{
-            int counter = 0;
-            Random random = new Random();
-            do{
-                Bid bid = getDomain().getRandomBid(random);
-                userModel = user.elicitRank(bid, userModel);
-                counter++;
-            }while(user.getTotalBother() < MAX_ELICIT_COST && counter < MAX_ELICITATION_ROUND);
-            this.preferenceModel = new LinearPreferenceModel(getDomain(), user, userModel);
-            return this.preferenceModel.estimateUtilitySpace();
+//            int counter = 0;
+//            Random random = new Random();
+//            do{
+//                Bid bid = getDomain().getRandomBid(random);
+//                userModel = user.elicitRank(bid, userModel);
+//                counter++;
+//            }while(user.getTotalBother() < MAX_ELICIT_COST && counter < MAX_ELICITATION_ROUND);
+            UserModel scaledUserModel = UserModelScaler.scaleUserModel(userModel, MAX_BID_ORDER_SIZE);
+            preferenceModel = new LinearPreferenceModel(getDomain(), user, scaledUserModel);
+            AbstractUtilitySpace estimatedUtilitySpace = preferenceModel.estimateUtilitySpace();
+            return estimatedUtilitySpace;
         }catch (Exception ex){
             ex.printStackTrace();
             return super.estimateUtilitySpace();
