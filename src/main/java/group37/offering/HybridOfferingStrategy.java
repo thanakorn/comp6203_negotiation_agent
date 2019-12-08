@@ -35,7 +35,7 @@ public class HybridOfferingStrategy extends OfferingStrategy {
             }
         }
 
-        if (time <= 0.75) {
+        if (time <= 0.5) {
             Bid randomBid = randomOfferingStrategy.generateBid(targetUtility, offerSpace, opponentBestOffer, time);
             Bid[] bidChoices = new Bid[]{highestOpponentBid, randomBid};
             chosenBid = bidChoices[new Random().nextInt(bidChoices.length)];
