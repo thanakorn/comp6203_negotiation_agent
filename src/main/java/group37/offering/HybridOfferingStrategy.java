@@ -26,17 +26,22 @@ public class HybridOfferingStrategy extends OfferingStrategy {
     }
 
     @Override
-    public Bid generateBid(double targetUtility, List<Bid> offerSpace, Bid opponentBestOffer) {
+    public Bid generateBid(double targetUtility, List<Bid> offerSpace, Bid opponentBestOffer, double time) {
         Bid highestOpponentBid = null;
+        Bid chosenBid = null;
         for (Bid bid : offerSpace) {
             if (highestOpponentBid == null || opponentModel.getUtility(bid) > opponentModel.getUtility(highestOpponentBid)) {
                 highestOpponentBid = bid;
             }
         }
 
-        Bid randomBid = randomOfferingStrategy.generateBid(targetUtility, offerSpace, opponentBestOffer);
-        Bid[] bidChoices = new Bid[]{highestOpponentBid, randomBid};
-        Bid chosenBid = bidChoices[new Random().nextInt(bidChoices.length)];
+        if (time <= 0.75) {
+            Bid randomBid = randomOfferingStrategy.generateBid(targetUtility, offerSpace, opponentBestOffer, time);
+            Bid[] bidChoices = new Bid[]{highestOpponentBid, randomBid};
+            chosenBid = bidChoices[new Random().nextInt(bidChoices.length)];
+        } else {
+            chosenBid = highestOpponentBid;
+        }
 
         if (userspace.getUtility(chosenBid) > userspace.getUtility(opponentBestOffer))
             return chosenBid;

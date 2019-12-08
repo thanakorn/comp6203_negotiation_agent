@@ -19,6 +19,6 @@ public abstract class OfferingStrategy {
         this.domain = domain;
     }
 
-    public abstract Bid generateBid(double targetUtility, List<Bid> offerSpace, Bid opponentBestOffer);
+    public abstract Bid generateBid(double targetUtility, List<Bid> offerSpace, Bid opponentBestOffer, double time);
 
 }

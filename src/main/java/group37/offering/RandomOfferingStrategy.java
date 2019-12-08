@@ -20,7 +20,7 @@ public class RandomOfferingStrategy extends OfferingStrategy {
         this.utilitySpace = utilitySpace;
     }
 
-    public Bid generateBid(double targetUtility, List<Bid> offerSpace, Bid opponentBestOffer) {
+    public Bid generateBid(double targetUtility, List<Bid> offerSpace, Bid opponentBestOffer, double time) {
         Bid bid = offerSpace.get(0);
         while (utilitySpace.getUtility(bid) < targetUtility) {
             bid = offerSpace.get(random.nextInt(offerSpace.size()));

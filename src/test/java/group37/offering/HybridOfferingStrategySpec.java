@@ -48,7 +48,7 @@ public class HybridOfferingStrategySpec {
         Mockito.when(om.getUtility(bids.get(3))).thenReturn(0.6);
 
         OfferingStrategy s = new HybridOfferingStrategy(domain, Mockito.mock(AbstractUtilitySpace.class), om);
-        assertEquals(bids.get(2), s.generateBid(0.7, bids, null));
+        assertEquals(bids.get(2), s.generateBid(0.7, bids, null, 0.6));
     }
 
 

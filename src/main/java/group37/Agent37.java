@@ -88,7 +88,7 @@ public class Agent37 extends AbstractNegotiationParty {
                 } else {
                     // Counter Offer
                     List<Bid> targetOffers = selectTargetOffers(targetUtility);
-                    Bid counterOffer = offeringStrategy.generateBid(targetUtility, targetOffers, opponentBestOffer);
+                    Bid counterOffer = offeringStrategy.generateBid(targetUtility, targetOffers, opponentBestOffer, 0.6);
                     action = new Offer(getPartyId(), counterOffer);
                 }
             }
