@@ -29,9 +29,9 @@ public class Agent37 extends AbstractNegotiationParty {
     protected final double INITIAL_CONCESSION = 0.05;
     protected final double EXP_FILTER = 0.8;
     protected final int OM_MAX_BID_ORDER_SIZE = 10000;
-    protected final double PERCENT_BID_GENERATE = 0.2;
-    protected final int MAX_BID_GENERATE = 1000;
-    protected final int MIN_BID_GENERATE = 20;
+    protected final double PERCENT_BID_GENERATE = 0.3;
+    protected final int MAX_BID_GENERATE = 30000;
+    protected final int MIN_BID_GENERATE = 2000;
     protected final int MAX_BID_ORDER_SIZE = 100;
 
     private double maxUtility = 1.0;
