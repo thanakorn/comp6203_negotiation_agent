@@ -7,10 +7,10 @@ import genius.core.parties.AbstractNegotiationParty;
 import genius.core.parties.NegotiationInfo;
 import genius.core.uncertainty.UserModel;
 import genius.core.utility.AbstractUtilitySpace;
-import group37.concession.BoulwareStrategy;
+import group37.concession.AdaptiveBoulwareStrategy;
 import group37.concession.ConcessionRate;
 import group37.concession.ConcessionStrategy;
-import group37.offering.MaxOpponentUtilityOfferingStrategy;
+import group37.offering.HybridOfferingStrategy;
 import group37.offering.OfferingStrategy;
 import group37.offering.generator.GreedyDFSOfferGenerator;
 import group37.offering.generator.OfferGenerator;
@@ -46,12 +46,14 @@ public class Agent37 extends AbstractNegotiationParty {
     private OfferingStrategy offeringStrategy;
 
     private Bid lastOffer;
+    private Bid opponentBestOffer;
+    private double bestUtilityFromOpponent;
     protected List<Bid> offerSubSpace;
 
     @Override
     public void init(NegotiationInfo info) {
         super.init(info);
-        this.concessionStrategy = new BoulwareStrategy(maxUtility, minUtility, INITIAL_CONCESSION, ConcessionRate.HARD_HEAD);
+        this.concessionStrategy = new AdaptiveBoulwareStrategy(maxUtility, minUtility, INITIAL_CONCESSION, ConcessionRate.HARD_HEAD);
         this.opponentModel = new AdaptiveFrequencyOM(getDomain(), OM_MAX_BID_ORDER_SIZE, EXP_FILTER);
         opponentConcessionModel = new OpponentConcessionModel(100);
 
@@ -61,8 +63,8 @@ public class Agent37 extends AbstractNegotiationParty {
         else if (numBidGenerate < MIN_BID_GENERATE) numBidGenerate = MIN_BID_GENERATE;
 
         OfferGenerator offerGenerator = new GreedyDFSOfferGenerator(getDomain(), utilitySpace);
-        offerSubSpace = offerGenerator.generateOffers((minUtility + maxUtility) / 2.0, numBidGenerate); // Sorted from max to min
-        this.offeringStrategy = new MaxOpponentUtilityOfferingStrategy(getDomain(), opponentModel);
+        offerSubSpace = offerGenerator.generateOffers(0.6, numBidGenerate); // Sorted from max to min
+        this.offeringStrategy = new HybridOfferingStrategy(getDomain(), getUtilitySpace(), opponentModel);
     }
 
     @Override
@@ -71,18 +73,26 @@ public class Agent37 extends AbstractNegotiationParty {
         if (lastOffer != null) {
             double time = timeline.getTime();
             double targetUtility = concessionStrategy.getTargetUtility(time);
+            if (time > 0.8) {
+                targetUtility = Math.max(bestUtilityFromOpponent, targetUtility);
+            }
+
             double utility = getUtility(lastOffer);
 
-            if (time >= 0.99) {
+            if (time >= 0.995) {
                 if (utility >= minUtility) action = new Accept(getPartyId(), lastOffer);
                 else action = new EndNegotiation(getPartyId());
             } else {
-                List<Bid> targetOffers = selectTargetOffers(targetUtility);
-                Bid counterOffer = offeringStrategy.generateBid(targetUtility, targetOffers);
-                if (utility >= targetUtility) action = new Accept(getPartyId(), lastOffer);
-                else action = new Offer(getPartyId(), counterOffer);
+                if (utility >= targetUtility) {
+                    action = new Accept(getPartyId(), lastOffer);
+                } else {
+                    // Counter Offer
+                    List<Bid> targetOffers = selectTargetOffers(targetUtility);
+                    Bid counterOffer = offeringStrategy.generateBid(targetUtility, targetOffers, opponentBestOffer);
+                    action = new Offer(getPartyId(), counterOffer);
+                }
             }
-        } else {
+        } else { // Our agent offer offer first
             action = new Offer(getPartyId(), offerSubSpace.get(0));
         }
         displaySummary();
@@ -103,6 +113,18 @@ public class Agent37 extends AbstractNegotiationParty {
             opponentModel.updateModel(lastOffer);
             opponentConcessionModel.updateModel(timeline.getTime(), getUtility(lastOffer));
 
+            // save best offer from opponent in term of our agent's utility
+            if (opponentBestOffer != null) {
+                if (getUtility(lastOffer) > getUtility(opponentBestOffer)) {
+                    opponentBestOffer = lastOffer;
+                    bestUtilityFromOpponent = getUtility(lastOffer);
+                }
+            } else {
+                opponentBestOffer = lastOffer;
+                bestUtilityFromOpponent = getUtility(lastOffer);
+            }
+
+            // Adjust concession rate if opponent is conceding.
             if (opponentConcessionModel.isOpponentConcess())
                 concessionStrategy.adjustRate(ConcessionRate.SUPER_HARD_HEAD);
             else {
@@ -150,6 +172,19 @@ public class Agent37 extends AbstractNegotiationParty {
             e.printStackTrace();
         }
         return acceptableOffers;
+    }
+
+    private double findNash() {
+        double max = Double.MIN_VALUE;
+        double nash = minUtility;
+        for (Bid bid : offerSubSpace) {
+            double product = getUtility(bid) * opponentModel.getUtility(bid);
+            if (product > max) {
+                max = product;
+                nash = getUtility(bid);
+            }
+        }
+        return nash;
     }
 
     private void displaySummary() {

@@ -2,20 +2,18 @@ package group37;
 
 import genius.core.AgentID;
 import genius.core.Bid;
-import genius.core.BidIterator;
 import genius.core.actions.*;
 import genius.core.parties.AbstractNegotiationParty;
 import genius.core.parties.NegotiationInfo;
 import genius.core.utility.AbstractUtilitySpace;
-import group37.concession.BoulwareStrategy;
+import group37.concession.AdaptiveBoulwareStrategy;
 import group37.concession.ConcessionStrategy;
-import group37.offering.HybridOfferingStrategy;
 import group37.offering.OfferingStrategy;
 import group37.opponent.AdaptiveFrequencyOM;
 import group37.opponent.OpponentConcessionModel;
 import group37.opponent.OpponentModel;
 import group37.preference.PreferenceModel;
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Random;
 
@@ -64,7 +62,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
 
         opponentModel = new AdaptiveFrequencyOM(getDomain(), 1000, 0.9); //new JonnyBlackOM(getDomain(), 0.5, 10);
         opponentConcessionModel = new OpponentConcessionModel(100);
-        concessionStrategy = new BoulwareStrategy(maxUtility, minUtility, 0.05, 0.1);
+        concessionStrategy = new AdaptiveBoulwareStrategy(maxUtility, minUtility, 0.05, 0.1);
 
         System.out.println("Max utility : " + maxUtility);
         System.out.println("Minimum target utility : " + minUtility);

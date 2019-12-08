@@ -1,13 +1,13 @@
 package group37.concession;
 
-public class BoulwareStrategy implements ConcessionStrategy {
+public class AdaptiveBoulwareStrategy implements ConcessionStrategy {
 
     private double minUtility;
     private double maxUtility;
     private double initialConcession;
     private double concessionRate;
 
-    public BoulwareStrategy(double maxTargetUtility, double minTargetUtility, double initialConcession, double concessionValue) {
+    public AdaptiveBoulwareStrategy(double maxTargetUtility, double minTargetUtility, double initialConcession, double concessionValue) {
         this.minUtility = minTargetUtility;
         this.maxUtility = maxTargetUtility;
         this.initialConcession = initialConcession;
