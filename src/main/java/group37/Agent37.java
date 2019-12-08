@@ -77,7 +77,7 @@ public class Agent37 extends AbstractNegotiationParty {
 
             double utility = getUtility(lastOffer);
 
-            if (time >= 0.995) {
+            if (time >= 0.99) {
                 if (utility >= minUtility) action = new Accept(getPartyId(), lastOffer);
                 else action = new EndNegotiation(getPartyId());
             } else {
