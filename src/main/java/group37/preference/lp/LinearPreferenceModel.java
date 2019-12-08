@@ -1,5 +1,10 @@
 package group37.preference.lp;
 
+import agents.anac.y2019.harddealer.math3.optimization.GoalType;
+import agents.anac.y2019.harddealer.math3.optimization.PointValuePair;
+import agents.anac.y2019.harddealer.math3.optimization.linear.LinearConstraint;
+import agents.anac.y2019.harddealer.math3.optimization.linear.LinearObjectiveFunction;
+import agents.anac.y2019.harddealer.math3.optimization.linear.SimplexSolver;
 import genius.core.Bid;
 import genius.core.Domain;
 import genius.core.issue.Issue;
@@ -12,15 +17,11 @@ import genius.core.uncertainty.User;
 import genius.core.uncertainty.UserModel;
 import genius.core.utility.AdditiveUtilitySpace;
 import group37.preference.PreferenceModel;
-import scpsolver.constraints.LinearConstraint;
-import scpsolver.lpsolver.LinearProgramSolver;
-import scpsolver.lpsolver.SolverFactory;
-import scpsolver.problems.LinearProgram;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-public class LinearProgrammingPM implements PreferenceModel {
+public class LinearPreferenceModel implements PreferenceModel {
 
     private Domain domain;
     private User user;
@@ -28,7 +29,7 @@ public class LinearProgrammingPM implements PreferenceModel {
     private List<Issue> allIssues;
     private List<Value> allValues;
 
-    public LinearProgrammingPM(Domain domain, User user, UserModel userModel){
+    public LinearPreferenceModel(Domain domain, User user, UserModel userModel){
         this.domain = domain;
         this.user = user;
         this.userModel = userModel;
@@ -40,7 +41,7 @@ public class LinearProgrammingPM implements PreferenceModel {
     }
 
     @Override
-    public AdditiveUtilitySpace estimateUtilitySpace(){
+    public AdditiveUtilitySpace estimateUtilitySpace() {
         HashMap<Value, Double> utilities = estimateUtilities(userModel.getBidRanking());
         HashMap<Issue, Double> weights = estimateWeight(userModel.getBidRanking(), utilities);
 
@@ -64,41 +65,37 @@ public class LinearProgrammingPM implements PreferenceModel {
 
     private HashMap<Value, Double> estimateUtilities(BidRanking bidRank){
         HashMap<Value, Double> utilities = new HashMap<>();
-        LinearPMBuilder builder = new LinearPMBuilder(domain, bidRank);
+        LinearPMHelper builder = new LinearPMHelper(domain, bidRank);
 
-        double[] objective = builder.getObjective();
-        LinearProgram lp = new LinearProgram(objective);
+        SimplexSolver solver = new SimplexSolver();
+        solver.setMaxIterations(Integer.MAX_VALUE);
+
+        LinearObjectiveFunction objective = new LinearObjectiveFunction(builder.getObjective(), 0);
         List<LinearConstraint> constraints = builder.getConstraints();
-        for(LinearConstraint c : constraints){
-            lp.addConstraint(c);
-        }
-        lp.setMinProblem(true);
-        LinearProgramSolver solver  = SolverFactory.newDefault();
-        double[] solution = solver.solve(lp);
+        PointValuePair solution = solver.optimize(objective, constraints, GoalType.MINIMIZE, true);
+
         for(int i = 0; i < allValues.size(); i++){
             Value v = allValues.get(i);
-            utilities.put(v, solution[builder.getValueIndex(v)]);
+            utilities.put(v, solution.getPoint()[builder.getValueIndex(v)]);
         }
         return utilities;
     }
 
     private HashMap<Issue, Double> estimateWeight(BidRanking bidRank, HashMap<Value, Double> valuesUtility){
         HashMap<Issue, Double> weights = new HashMap<>();
-        LinearPMWeightsBuilder builder = new LinearPMWeightsBuilder(domain, bidRank, valuesUtility);
+        LinearPMWeightHelper builder = new LinearPMWeightHelper(domain, bidRank, valuesUtility);
 
-        double[] objective = builder.getObjective();
-        LinearProgram lp = new LinearProgram(objective);
+        SimplexSolver solver = new SimplexSolver();
+        solver.setMaxIterations(Integer.MAX_VALUE);
+
+        LinearObjectiveFunction objective = new LinearObjectiveFunction(builder.getObjective(), 0);
         List<LinearConstraint> constraints = builder.getConstraints();
-        for(LinearConstraint c : constraints){
-            lp.addConstraint(c);
-        }
-        lp.setMinProblem(true);
-        LinearProgramSolver solver  = SolverFactory.newDefault();
-        double[] solution = solver.solve(lp);
+        PointValuePair solution = solver.optimize(objective, constraints, GoalType.MINIMIZE, true);
 
         for(Issue i: allIssues){
-            weights.put(i, solution[i.getNumber() - 1]);
+            weights.put(i, solution.getPoint()[i.getNumber() - 1]);
         }
         return weights;
     }
+
 }

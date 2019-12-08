@@ -15,9 +15,9 @@ import group37.opponent.AdaptiveFrequencyOM;
 import group37.opponent.OpponentConcessionModel;
 import group37.opponent.OpponentModel;
 import group37.preference.PreferenceModel;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class StandardNegotiationAgent extends AbstractNegotiationParty {
 
@@ -70,17 +70,6 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
         System.out.println("Minimum target utility : " + minUtility);
         System.out.println("Discount factor : " + discountFactor);
         System.out.println("Reserved value : " + utilitySpace.getReservationValue());
-
-
-        // Add all bids in the domain to the list
-        List<Bid> allBids = new ArrayList<>();
-        BidIterator bidIterator = new BidIterator(this.utilitySpace.getDomain());
-        while (bidIterator.hasNext()) {
-            Bid bid = bidIterator.next();
-            allBids.add(bid);
-        }
-
-        offeringStrategy = new HybridOfferingStrategy(info, getUtilitySpace(), opponentModel, allBids);
     }
 
     @Override
@@ -125,11 +114,13 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
                 if (utility >= targetUtility) {
                     action = new Accept(getPartyId(), lastOffer);
                 } else {
-                    action = new Offer(getPartyId(), offeringStrategy.generateBid(targetUtility));
+//                    action = new Offer(getPartyId(), offeringStrategy.generateBid(targetUtility));
+                    action = new Offer(getPartyId(), lastOffer);
                 }
             }
         } else {
-            action = new Offer(getPartyId(), offeringStrategy.generateBid(maxUtility));
+//            action = new Offer(getPartyId(), offeringStrategy.generateBid(maxUtility));
+            action = new Offer(getPartyId(), getDomain().getRandomBid(new Random()));
         }
 
 //        System.out.println("Action taken : " + action);

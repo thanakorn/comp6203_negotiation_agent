@@ -2,101 +2,70 @@ package group37.offering;
 
 import genius.core.Bid;
 import genius.core.Domain;
+import genius.core.DomainImpl;
 import genius.core.issue.Issue;
 import genius.core.issue.IssueDiscrete;
 import genius.core.issue.Value;
 import genius.core.issue.ValueDiscrete;
 import genius.core.parties.NegotiationInfo;
 import genius.core.utility.AbstractUtilitySpace;
+import genius.core.utility.AdditiveUtilitySpace;
+import group37.offering.generator.GreedyDFSOfferGenerator;
+import group37.offering.generator.OfferGenerator;
+import group37.offering.generator.RandomOfferGenerator;
 import group37.preference.PreferenceModel;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+
+import static org.junit.Assert.*;
 
 public class RandomOfferingStrategySpec {
 
-    NegotiationInfo mockInfo = Mockito.mock(NegotiationInfo.class);
-    AbstractUtilitySpace mockUtilSpace = Mockito.mock(AbstractUtilitySpace.class);
-    Domain mockDomain = Mockito.mock(Domain.class);
-    Issue issue1 = (Issue)(new IssueDiscrete("issue1", 1, new String[]{"1", "2"}));
-    Issue issue2 = (Issue)(new IssueDiscrete("issue2", 2, new String[]{"A", "B"}));
-    List<Issue> issues = Arrays.asList(new Issue[]{issue1, issue2});
+    private static Domain domain;
+    private static AbstractUtilitySpace utilitySpace;
+
+    @BeforeClass
+    public static void init(){
+        try {
+            domain = new DomainImpl("src/test/resources/test_domain.xml");
+            utilitySpace = new AdditiveUtilitySpace(domain, "src/test/resources/test_domain.xml");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
     @Test
     public void testConstructor(){
-        Mockito.when(mockDomain.getIssues()).thenReturn(issues);
-        Mockito.when(mockUtilSpace.getDomain()).thenReturn(mockDomain);
-        Mockito.when(mockInfo.getUtilitySpace()).thenReturn(mockUtilSpace);
-        new RandomOfferingStrategy(mockInfo, Mockito.mock(AbstractUtilitySpace.class));
+        new RandomOfferingStrategy(domain, utilitySpace);
     }
 
     @Test
-    public void testGenerateRandomBid(){
-        Mockito.when(mockDomain.getIssues()).thenReturn(issues);
-        Mockito.when(mockUtilSpace.getDomain()).thenReturn(mockDomain);
-        Mockito.when(mockInfo.getUtilitySpace()).thenReturn(mockUtilSpace);
-
-        AbstractUtilitySpace utilitySpace = Mockito.mock(AbstractUtilitySpace.class);
-        Bid targetBid = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("1"));
-            put(2, new ValueDiscrete("A"));
-        }});
-        Bid nonTargetBid = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("1"));
-            put(2, new ValueDiscrete("B"));
-        }});
-        Bid nonTargetBid2 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("2"));
-            put(2, new ValueDiscrete("A"));
-        }});
-        Bid nonTargetBid3 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("2"));
-            put(2, new ValueDiscrete("B"));
-        }});
-
-        Mockito.when(utilitySpace.getUtility(targetBid)).thenReturn(0.9);
-        Mockito.when(utilitySpace.getUtility(nonTargetBid)).thenReturn(0.1);
-        Mockito.when(utilitySpace.getUtility(nonTargetBid2)).thenReturn(0.1);
-        Mockito.when(utilitySpace.getUtility(nonTargetBid3)).thenReturn(0.1);
-        OfferingStrategy o = new RandomOfferingStrategy(mockInfo, utilitySpace);
-        assertEquals(targetBid, o.generateBid(0.8));
+    public void testGenerateBid(){
+        OfferGenerator generator = new RandomOfferGenerator(domain, utilitySpace);
+        OfferingStrategy o = new RandomOfferingStrategy(domain, utilitySpace);
+        List<Bid> offerSpace = generateOfferSpace(0.8, utilitySpace);
+        Bid bid1 = o.generateBid(0.9, offerSpace);
+        Bid bid2 = o.generateBid(0.8, offerSpace);
+        Bid bid3 = o.generateBid(0.95, offerSpace);
+        assertTrue(utilitySpace.getUtility(bid1) >= 0.9);
+        assertTrue(utilitySpace.getUtility(bid2) >= 0.8);
+        assertTrue(utilitySpace.getUtility(bid3) >= 0.95);
     }
 
-    @Test
-    public void testGenerateRandomBidNoInfiniteLoop(){
-        Mockito.when(mockDomain.getIssues()).thenReturn(issues);
-        Mockito.when(mockUtilSpace.getDomain()).thenReturn(mockDomain);
-        Mockito.when(mockInfo.getUtilitySpace()).thenReturn(mockUtilSpace);
-
-        AbstractUtilitySpace utilitySpace = Mockito.mock(AbstractUtilitySpace.class);
-        Bid targetBid = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("1"));
-            put(2, new ValueDiscrete("A"));
-        }});
-        Bid nonTargetBid = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("1"));
-            put(2, new ValueDiscrete("B"));
-        }});
-        Bid nonTargetBid2 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("2"));
-            put(2, new ValueDiscrete("A"));
-        }});
-        Bid nonTargetBid3 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
-            put(1, new ValueDiscrete("2"));
-            put(2, new ValueDiscrete("B"));
-        }});
-        Mockito.when(utilitySpace.getUtility(targetBid)).thenReturn(0.7);
-        Mockito.when(utilitySpace.getUtility(nonTargetBid)).thenReturn(0.1);
-        Mockito.when(utilitySpace.getUtility(nonTargetBid2)).thenReturn(0.1);
-        Mockito.when(utilitySpace.getUtility(nonTargetBid3)).thenReturn(0.1);
-        OfferingStrategy o = new RandomOfferingStrategy(mockInfo, utilitySpace);
-        assertNotNull(o.generateBid(0.8));
+    private List<Bid> generateOfferSpace(double minimumUtility, AbstractUtilitySpace utilitySpace){
+        List<Bid> bids = new LinkedList<>();
+        Random random = new Random();
+        for(int i = 0; i < 10; i++){
+            Bid bid = domain.getRandomBid(random);
+            while(utilitySpace.getUtility(bid) < minimumUtility){
+                bid = domain.getRandomBid(random);
+            }
+            bids.add(bid);
+        }
+        return bids;
     }
-
 
 }
