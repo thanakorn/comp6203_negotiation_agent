@@ -32,7 +32,7 @@ public class Agent37 extends AbstractNegotiationParty {
     protected final double PERCENT_BID_GENERATE = 0.2;
     protected final int MAX_BID_GENERATE = 1000;
     protected final int MIN_BID_GENERATE = 20;
-    protected final int MAX_BID_ORDER_SIZE = 200;
+    protected final int MAX_BID_ORDER_SIZE = 100;
 
     private double maxUtility = 1.0;
     private double minUtility = 0.4;
