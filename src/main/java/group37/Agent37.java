@@ -14,13 +14,13 @@ import group37.offering.HybridOfferingStrategy;
 import group37.offering.OfferingStrategy;
 import group37.offering.generator.GreedyDFSOfferGenerator;
 import group37.offering.generator.OfferGenerator;
-import group37.offering.generator.SimulatedAnnealingOfferGenerator;
 import group37.opponent.AdaptiveFrequencyOM;
 import group37.opponent.OpponentConcessionModel;
 import group37.opponent.OpponentModel;
 import group37.preference.PreferenceModel;
 import group37.preference.UserModelScaler;
 import group37.preference.lp.LinearPreferenceModel;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -56,9 +56,9 @@ public class Agent37 extends AbstractNegotiationParty {
         opponentConcessionModel = new OpponentConcessionModel(100);
 
 
-        long numBidGenerate = (int)(PERCENT_BID_GENERATE * getDomain().getNumberOfPossibleBids());
-        if(numBidGenerate > MAX_BID_GENERATE) numBidGenerate = MAX_BID_GENERATE;
-        else if(numBidGenerate < MIN_BID_GENERATE) numBidGenerate = MIN_BID_GENERATE;
+        long numBidGenerate = (int) (PERCENT_BID_GENERATE * getDomain().getNumberOfPossibleBids());
+        if (numBidGenerate > MAX_BID_GENERATE) numBidGenerate = MAX_BID_GENERATE;
+        else if (numBidGenerate < MIN_BID_GENERATE) numBidGenerate = MIN_BID_GENERATE;
 
         OfferGenerator offerGenerator = new GreedyDFSOfferGenerator(getDomain(), utilitySpace);
         offerSubSpace = offerGenerator.generateOffers(0.6, numBidGenerate); // Sorted from max to min
@@ -68,7 +68,7 @@ public class Agent37 extends AbstractNegotiationParty {
     @Override
     public Action chooseAction(List<Class<? extends Action>> list) {
         Action action;
-        if(lastOffer != null){
+        if (lastOffer != null) {
             double time = timeline.getTime();
             double targetUtility = concessionStrategy.getTargetUtility(time);
             if (time > 0.8) {
@@ -86,7 +86,7 @@ public class Agent37 extends AbstractNegotiationParty {
                 } else {
                     // Counter Offer
                     List<Bid> targetOffers = selectTargetOffers(targetUtility);
-                    Bid counterOffer = offeringStrategy.generateBid(targetUtility, targetOffers, opponentBestOffer, 0.6);
+                    Bid counterOffer = offeringStrategy.generateBid(targetUtility, targetOffers, opponentBestOffer, time);
                     action = new Offer(getPartyId(), counterOffer);
                 }
             }
@@ -132,11 +132,11 @@ public class Agent37 extends AbstractNegotiationParty {
     }
 
     @Override
-    public AbstractUtilitySpace estimateUtilitySpace(){
+    public AbstractUtilitySpace estimateUtilitySpace() {
         /**
          * Pre-generate bid order
          */
-        try{
+        try {
 //            int counter = 0;
 //            Random random = new Random();
 //            do{
@@ -148,7 +148,7 @@ public class Agent37 extends AbstractNegotiationParty {
             preferenceModel = new LinearPreferenceModel(getDomain(), user, scaledUserModel);
             AbstractUtilitySpace estimatedUtilitySpace = preferenceModel.estimateUtilitySpace();
             return estimatedUtilitySpace;
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
             return super.estimateUtilitySpace();
         }
@@ -159,14 +159,14 @@ public class Agent37 extends AbstractNegotiationParty {
         return "Agent37";
     }
 
-    private List<Bid> selectTargetOffers(double targetUtility){
+    private List<Bid> selectTargetOffers(double targetUtility) {
         List<Bid> acceptableOffers = new LinkedList<>();
-        try{
+        try {
             acceptableOffers.add(utilitySpace.getMaxUtilityBid());
-            for(Bid b : offerSubSpace){
-                if(getUtility(b) >= targetUtility) acceptableOffers.add(b);
+            for (Bid b : offerSubSpace) {
+                if (getUtility(b) >= targetUtility) acceptableOffers.add(b);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return acceptableOffers;
