@@ -17,8 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import agents.anac.y2019.harddealer.math3.optimization.linear.LinearConstraint;
-import agents.anac.y2019.harddealer.math3.optimization.linear.Relationship;
+import org.apache.commons.math3.optimization.linear.LinearConstraint;
+import org.apache.commons.math3.optimization.linear.Relationship;
 
 public class LinearPMWeightHelperSpec {
 
@@ -26,10 +26,6 @@ public class LinearPMWeightHelperSpec {
     Issue issue1 = new IssueDiscrete("issue1", 1, new String[]{"1", "2", "3"});
     Issue issue2 = new IssueDiscrete("issue2", 2, new String[]{"A", "B"});
     List<Issue> issues = Arrays.asList(new Issue[]{issue1, issue2});
-
-    User mockUser = Mockito.mock(User.class);
-    UserModel mockUserModel = Mockito.mock(UserModel.class);
-    BidRanking mockBidRank = Mockito.mock(BidRanking.class);
 
     Bid bid1 = new Bid(mockDomain, new HashMap<Integer, Value>() {{
         put(1, new ValueDiscrete("1"));

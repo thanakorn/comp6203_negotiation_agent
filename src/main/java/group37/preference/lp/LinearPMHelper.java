@@ -1,7 +1,7 @@
 package group37.preference.lp;
 
-import agents.anac.y2019.harddealer.math3.optimization.linear.LinearConstraint;
-import agents.anac.y2019.harddealer.math3.optimization.linear.Relationship;
+import org.apache.commons.math3.optimization.linear.LinearConstraint;
+import org.apache.commons.math3.optimization.linear.Relationship;
 import genius.core.Bid;
 import genius.core.Domain;
 import genius.core.issue.Issue;

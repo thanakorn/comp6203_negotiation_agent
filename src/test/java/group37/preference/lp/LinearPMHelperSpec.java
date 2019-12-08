@@ -15,8 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import agents.anac.y2019.harddealer.math3.optimization.linear.LinearConstraint;
-import agents.anac.y2019.harddealer.math3.optimization.linear.Relationship;
+import org.apache.commons.math3.optimization.linear.LinearConstraint;
+import org.apache.commons.math3.optimization.linear.Relationship;
 
 public class LinearPMHelperSpec {
 

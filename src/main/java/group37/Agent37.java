@@ -20,7 +20,6 @@ import group37.opponent.OpponentModel;
 import group37.preference.PreferenceModel;
 import group37.preference.UserModelScaler;
 import group37.preference.lp.LinearPreferenceModel;
-import group37.preference.lp.LinearProgrammingPM;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -33,9 +32,7 @@ public class Agent37 extends AbstractNegotiationParty {
     protected final double PERCENT_BID_GENERATE = 0.2;
     protected final int MAX_BID_GENERATE = 1000;
     protected final int MIN_BID_GENERATE = 20;
-    protected final double MAX_ELICIT_COST = 0.1;
-    protected final int MAX_ELICITATION_ROUND = 50;
-    protected final int MAX_BID_ORDER_SIZE = 100;
+    protected final int MAX_BID_ORDER_SIZE = 200;
 
     private double maxUtility = 1.0;
     private double minUtility = 0.4;

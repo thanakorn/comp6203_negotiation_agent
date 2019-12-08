@@ -1,10 +1,10 @@
 package group37.preference.lp;
 
-import agents.anac.y2019.harddealer.math3.optimization.GoalType;
-import agents.anac.y2019.harddealer.math3.optimization.PointValuePair;
-import agents.anac.y2019.harddealer.math3.optimization.linear.LinearConstraint;
-import agents.anac.y2019.harddealer.math3.optimization.linear.LinearObjectiveFunction;
-import agents.anac.y2019.harddealer.math3.optimization.linear.SimplexSolver;
+import org.apache.commons.math3.optimization.GoalType;
+import org.apache.commons.math3.optimization.PointValuePair;
+import org.apache.commons.math3.optimization.linear.LinearConstraint;
+import org.apache.commons.math3.optimization.linear.LinearObjectiveFunction;
+import org.apache.commons.math3.optimization.linear.SimplexSolver;
 import genius.core.Bid;
 import genius.core.Domain;
 import genius.core.issue.Issue;

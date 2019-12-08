@@ -4,17 +4,14 @@ import genius.core.Bid;
 import genius.core.Domain;
 import genius.core.DomainImpl;
 import genius.core.issue.*;
-import genius.core.uncertainty.AdditiveUtilitySpaceFactory;
 import genius.core.uncertainty.BidRanking;
 import genius.core.uncertainty.User;
 import genius.core.uncertainty.UserModel;
 import genius.core.utility.AdditiveUtilitySpace;
 import genius.core.utility.EvaluatorDiscrete;
 import group37.preference.lp.LinearPreferenceModel;
-import group37.preference.lp.LinearProgrammingPM;
 import org.junit.Test;
 import org.mockito.Mockito;
-import java.io.IOException;
 import java.util.*;
 
 public class PreferenceModelTest {

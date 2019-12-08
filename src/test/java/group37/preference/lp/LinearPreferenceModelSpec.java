@@ -20,7 +20,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class LinearProgrammingPMSpec {
+public class LinearPreferenceModelSpec {
 
     User mockUser = Mockito.mock(User.class);
 
@@ -72,7 +72,7 @@ public class LinearProgrammingPMSpec {
             add(bid1);
         }}, 0.0, 1.0);
         UserModel userModel = new UserModel(bidRank);
-        new LinearProgrammingPM(domain, mockUser, userModel);
+        new LinearPreferenceModel(domain, mockUser, userModel);
     }
 
     @Test
@@ -83,7 +83,7 @@ public class LinearProgrammingPMSpec {
             add(bid1);
         }}, 0.0, 1.0);
         UserModel userModel = new UserModel(bidRank);
-        LinearProgrammingPM pm = new LinearProgrammingPM(domain, mockUser, userModel);
+        LinearPreferenceModel pm = new LinearPreferenceModel(domain, mockUser, userModel);
         AdditiveUtilitySpace utilitySpace = pm.estimateUtilitySpace();
         assertEquals(1.0, utilitySpace.getUtility(bid1), 0.00);
     }
@@ -96,7 +96,7 @@ public class LinearProgrammingPMSpec {
             add(bid1);
         }}, 0.3, 1.0);
         UserModel userModel = new UserModel(bidRank);
-        LinearProgrammingPM pm = new LinearProgrammingPM(domain, mockUser, userModel);
+        LinearPreferenceModel pm = new LinearPreferenceModel(domain, mockUser, userModel);
         AbstractUtilitySpace utilitySpace = pm.estimateUtilitySpace();
         assertEquals(1.0, utilitySpace.getUtility(bid1), 0.00);
         assertEquals(0.3, utilitySpace.getUtility(bid3), 0.00);
@@ -112,7 +112,7 @@ public class LinearProgrammingPMSpec {
             add(bid1);
         }}, 0.0, 1.0);
         UserModel userModel = new UserModel(bidRank);
-        LinearProgrammingPM pm = new LinearProgrammingPM(domain, mockUser, userModel);
+        LinearPreferenceModel pm = new LinearPreferenceModel(domain, mockUser, userModel);
 
         AbstractUtilitySpace utilitySpace1 = pm.estimateUtilitySpace();
         assertEquals(1.0, utilitySpace1.getUtility(bid1), 0.00);

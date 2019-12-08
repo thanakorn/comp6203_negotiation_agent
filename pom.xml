@@ -3,53 +3,57 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.java</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <version>2.5.2</version>
-                <executions>
-                    <execution>
-                        <id>install-genius-jar</id>
-                        <phase>clean</phase>
-                        <configuration>
-                            <repositoryLayout>default</repositoryLayout>
-                            <groupId>genius</groupId>
-                            <artifactId>genius</artifactId>
-                            <version>9.1.12</version>
-                            <file>${project.basedir}/resources/genius-9.1.12.jar</file>
-                            <packaging>jar</packaging>
-                            <generatePom>true</generatePom>
-                        </configuration>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>fully.qualified.MainClass</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-         
+
     <groupId>group37</groupId>
     <artifactId>Agent37</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
-            <groupId>genius</groupId>
+            <groupId>tp2n19</groupId>
             <artifactId>genius</artifactId>
             <version>9.1.12</version>
-            <systemPath>${basedir}\resources\genius-9.1.12.jar</systemPath>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/resources/genius-9.1.12.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>3.6.1</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -64,6 +68,5 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>
 
