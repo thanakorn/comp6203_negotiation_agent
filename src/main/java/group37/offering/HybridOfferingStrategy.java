@@ -43,7 +43,9 @@ public class HybridOfferingStrategy extends OfferingStrategy {
             chosenBid = highestOpponentBid;
         }
 
-        if (userspace.getUtility(chosenBid) > userspace.getUtility(opponentBestOffer))
+        if (chosenBid == null)
+            return opponentBestOffer;
+        else if (userspace.getUtility(chosenBid) > userspace.getUtility(opponentBestOffer))
             return chosenBid;
         else
             return opponentBestOffer;
