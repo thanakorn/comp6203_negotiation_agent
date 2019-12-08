@@ -79,7 +79,11 @@ public class Agent37 extends AbstractNegotiationParty {
 
             if (time >= 0.99) {
                 if (utility >= minUtility) action = new Accept(getPartyId(), lastOffer);
-                else action = new EndNegotiation(getPartyId());
+                else {
+                    List<Bid> targetOffers = selectTargetOffers(targetUtility);
+                    Bid counterOffer = offeringStrategy.generateBid(targetUtility, targetOffers, opponentBestOffer, time);
+                    action = new Offer(getPartyId(), counterOffer);
+                }
             } else {
                 if (utility >= targetUtility) {
                     action = new Accept(getPartyId(), lastOffer);
