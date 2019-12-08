@@ -18,7 +18,6 @@ public class AdaptiveFrequencyOM implements OpponentModel {
     private double bidSize;
     private double exponentialFilter;
     private LinkedList<Bid> opponentBids = new LinkedList<>();
-    private ArrayList<HashMap<Issue, Double>> weightHistory;
 
     public AdaptiveFrequencyOM(Domain domain, int size, double expFilter) {
         opponentUtilitySpace = new AdditiveUtilitySpace(domain);

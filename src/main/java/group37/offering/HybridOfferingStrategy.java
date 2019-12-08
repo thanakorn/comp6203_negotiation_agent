@@ -2,40 +2,50 @@ package group37.offering;
 
 import genius.core.Bid;
 import genius.core.Domain;
-import genius.core.parties.NegotiationInfo;
 import genius.core.utility.AbstractUtilitySpace;
-import group37.opponent.AdaptiveFrequencyOM;
 import group37.opponent.OpponentModel;
-import group37.preference.PreferenceModel;
 
 import java.util.List;
+import java.util.Random;
 
+/**
+ * Return the bid higher than target utility and has max opponent utility or the best bid from opponent
+ * with some randomness to prevent opponent to model our agent.
+ */
 public class HybridOfferingStrategy extends OfferingStrategy {
 
-    private AbstractUtilitySpace utilitySpace;
     private OpponentModel opponentModel;
-    private List<Bid> bids;
+    private AbstractUtilitySpace userspace;
+    private RandomOfferingStrategy randomOfferingStrategy;
 
-    public HybridOfferingStrategy(Domain domain, AbstractUtilitySpace utilitySpace, OpponentModel opponentModel, List<Bid> initialBids) {
+    public HybridOfferingStrategy(Domain domain, AbstractUtilitySpace userModel, OpponentModel opponentModel) {
         super(domain);
-        this.utilitySpace = utilitySpace;
         this.opponentModel = opponentModel;
-        this.bids = initialBids;
+        this.userspace = userModel;
+        this.randomOfferingStrategy = new RandomOfferingStrategy(domain, userspace);
     }
 
     @Override
-    public Bid generateBid(double targetUtility, List<Bid> offerSpace) {
-        System.out.println(((AdaptiveFrequencyOM) opponentModel).opponentUtilitySpace.toString());
-        Bid offer = null;
-        double highestOppUtil = -1.0;
-        for (Bid bid : bids) {
-            double agentUtil = utilitySpace.getUtility(bid);
-            double oppUtil = opponentModel.getUtility(offer);
-            if (agentUtil >= targetUtility && oppUtil >= highestOppUtil) {
-                offer = bid;
-                highestOppUtil = oppUtil;
+    public Bid generateBid(double targetUtility, List<Bid> offerSpace, Bid opponentBestOffer, double time) {
+        Bid highestOpponentBid = null;
+        Bid chosenBid = null;
+        for (Bid bid : offerSpace) {
+            if (highestOpponentBid == null || opponentModel.getUtility(bid) > opponentModel.getUtility(highestOpponentBid)) {
+                highestOpponentBid = bid;
             }
         }
-        return offer;
+
+        if (time <= 0.75) {
+            Bid randomBid = randomOfferingStrategy.generateBid(targetUtility, offerSpace, opponentBestOffer, time);
+            Bid[] bidChoices = new Bid[]{highestOpponentBid, randomBid};
+            chosenBid = bidChoices[new Random().nextInt(bidChoices.length)];
+        } else {
+            chosenBid = highestOpponentBid;
+        }
+
+        if (userspace.getUtility(chosenBid) > userspace.getUtility(opponentBestOffer))
+            return chosenBid;
+        else
+            return opponentBestOffer;
     }
 }

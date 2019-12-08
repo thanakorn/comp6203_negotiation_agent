@@ -47,9 +47,9 @@ public class RandomOfferingStrategySpec {
         OfferGenerator generator = new RandomOfferGenerator(domain, utilitySpace);
         OfferingStrategy o = new RandomOfferingStrategy(domain, utilitySpace);
         List<Bid> offerSpace = generateOfferSpace(0.8, utilitySpace);
-        Bid bid1 = o.generateBid(0.9, offerSpace);
-        Bid bid2 = o.generateBid(0.8, offerSpace);
-        Bid bid3 = o.generateBid(0.95, offerSpace);
+        Bid bid1 = o.generateBid(0.9, offerSpace, null, 0.6);
+        Bid bid2 = o.generateBid(0.8, offerSpace, null, 0.6);
+        Bid bid3 = o.generateBid(0.95, offerSpace, null, 0.6);
         assertTrue(utilitySpace.getUtility(bid1) >= 0.9);
         assertTrue(utilitySpace.getUtility(bid2) >= 0.8);
         assertTrue(utilitySpace.getUtility(bid3) >= 0.95);

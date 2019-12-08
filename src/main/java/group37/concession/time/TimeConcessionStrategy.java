@@ -30,4 +30,9 @@ public class TimeConcessionStrategy implements ConcessionStrategy {
         double delta = this.deltaFunc.apply(time);
         return targetUtility - delta;
     }
+
+    @Override
+    public void adjustRate(double concessionRate) {
+
+    }
 }
