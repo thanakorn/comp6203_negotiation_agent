@@ -71,7 +71,7 @@ public class Agent37 extends AbstractNegotiationParty {
         if (lastOffer != null) {
             double time = timeline.getTime();
             double targetUtility = concessionStrategy.getTargetUtility(time);
-            if (time > 0.8 && bestUtilityFromOpponent < 0.75) {
+            if (time > 0.8 && bestUtilityFromOpponent < 0.8) {
                 targetUtility = Math.max(bestUtilityFromOpponent, targetUtility);
             }
 
