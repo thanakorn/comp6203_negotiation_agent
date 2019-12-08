@@ -20,4 +20,8 @@ public class BoulwareStrategy implements ConcessionStrategy {
         return minUtility + (1 - timeFunction) * (maxUtility - minUtility);
     }
 
+    @Override
+    public void adjustRate(double concessionRate) {
+        this.concessionRate = concessionRate;
+    }
 }

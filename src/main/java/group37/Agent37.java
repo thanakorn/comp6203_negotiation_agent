@@ -8,6 +8,7 @@ import genius.core.parties.NegotiationInfo;
 import genius.core.uncertainty.UserModel;
 import genius.core.utility.AbstractUtilitySpace;
 import group37.concession.BoulwareStrategy;
+import group37.concession.ConcessionRate;
 import group37.concession.ConcessionStrategy;
 import group37.offering.MaxOpponentUtilityOfferingStrategy;
 import group37.offering.OfferingStrategy;
@@ -25,7 +26,6 @@ import java.util.List;
 
 public class Agent37 extends AbstractNegotiationParty {
 
-    protected final double CONCESSION_VALUE = 0.1;
     protected final double INITIAL_CONCESSION = 0.05;
     protected final double EXP_FILTER = 0.8;
     protected final int OM_MAX_BID_ORDER_SIZE = 10000;
@@ -51,7 +51,7 @@ public class Agent37 extends AbstractNegotiationParty {
     @Override
     public void init(NegotiationInfo info) {
         super.init(info);
-        this.concessionStrategy = new BoulwareStrategy(maxUtility, minUtility, INITIAL_CONCESSION, CONCESSION_VALUE);
+        this.concessionStrategy = new BoulwareStrategy(maxUtility, minUtility, INITIAL_CONCESSION, ConcessionRate.HARD_HEAD);
         this.opponentModel = new AdaptiveFrequencyOM(getDomain(), OM_MAX_BID_ORDER_SIZE, EXP_FILTER);
         opponentConcessionModel = new OpponentConcessionModel(100);
 
@@ -102,6 +102,12 @@ public class Agent37 extends AbstractNegotiationParty {
             lastOffer = ((Offer) action).getBid();
             opponentModel.updateModel(lastOffer);
             opponentConcessionModel.updateModel(timeline.getTime(), getUtility(lastOffer));
+
+            if (opponentConcessionModel.isOpponentConcess())
+                concessionStrategy.adjustRate(ConcessionRate.SUPER_HARD_HEAD);
+            else {
+                concessionStrategy.adjustRate(ConcessionRate.HARD_HEAD);
+            }
         }
     }
 
