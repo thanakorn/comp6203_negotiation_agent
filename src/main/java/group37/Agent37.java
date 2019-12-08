@@ -5,29 +5,28 @@ import genius.core.Bid;
 import genius.core.actions.*;
 import genius.core.parties.AbstractNegotiationParty;
 import genius.core.parties.NegotiationInfo;
-import genius.core.uncertainty.BidRanking;
 import genius.core.uncertainty.UserModel;
 import genius.core.utility.AbstractUtilitySpace;
 import group37.concession.BoulwareStrategy;
+import group37.concession.ConcessionRate;
 import group37.concession.ConcessionStrategy;
 import group37.offering.MaxOpponentUtilityOfferingStrategy;
 import group37.offering.OfferingStrategy;
 import group37.offering.generator.GreedyDFSOfferGenerator;
 import group37.offering.generator.OfferGenerator;
-import group37.offering.generator.SimulatedAnnealingOfferGenerator;
 import group37.opponent.AdaptiveFrequencyOM;
+import group37.opponent.OpponentConcessionModel;
 import group37.opponent.OpponentModel;
 import group37.preference.PreferenceModel;
 import group37.preference.UserModelScaler;
 import group37.preference.lp.LinearPreferenceModel;
-import group37.preference.lp.LinearProgrammingPM;
+
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 public class Agent37 extends AbstractNegotiationParty {
 
-    protected final double CONCESSION_VALUE = 0.1;
+    protected final double INITIAL_CONCESSION = 0.05;
     protected final double EXP_FILTER = 0.8;
     protected final int OM_MAX_BID_ORDER_SIZE = 10000;
     protected final double PERCENT_BID_GENERATE = 0.2;
@@ -42,6 +41,7 @@ public class Agent37 extends AbstractNegotiationParty {
 
     private ConcessionStrategy concessionStrategy;
     private OpponentModel opponentModel;
+    private OpponentConcessionModel opponentConcessionModel;
     private PreferenceModel preferenceModel;
     private OfferingStrategy offeringStrategy;
 
@@ -51,36 +51,38 @@ public class Agent37 extends AbstractNegotiationParty {
     @Override
     public void init(NegotiationInfo info) {
         super.init(info);
-        this.concessionStrategy = new BoulwareStrategy(maxUtility, minUtility, CONCESSION_VALUE);
+        this.concessionStrategy = new BoulwareStrategy(maxUtility, minUtility, INITIAL_CONCESSION, ConcessionRate.HARD_HEAD);
         this.opponentModel = new AdaptiveFrequencyOM(getDomain(), OM_MAX_BID_ORDER_SIZE, EXP_FILTER);
+        opponentConcessionModel = new OpponentConcessionModel(100);
 
-        long numBidGenerate = (int)(PERCENT_BID_GENERATE * getDomain().getNumberOfPossibleBids());
-        if(numBidGenerate > MAX_BID_GENERATE) numBidGenerate = MAX_BID_GENERATE;
-        else if(numBidGenerate < MIN_BID_GENERATE) numBidGenerate = MIN_BID_GENERATE;
+
+        long numBidGenerate = (int) (PERCENT_BID_GENERATE * getDomain().getNumberOfPossibleBids());
+        if (numBidGenerate > MAX_BID_GENERATE) numBidGenerate = MAX_BID_GENERATE;
+        else if (numBidGenerate < MIN_BID_GENERATE) numBidGenerate = MIN_BID_GENERATE;
 
         OfferGenerator offerGenerator = new GreedyDFSOfferGenerator(getDomain(), utilitySpace);
-        offerSubSpace = offerGenerator.generateOffers( (minUtility + maxUtility) / 2.0, numBidGenerate); // Sorted from max to min
+        offerSubSpace = offerGenerator.generateOffers((minUtility + maxUtility) / 2.0, numBidGenerate); // Sorted from max to min
         this.offeringStrategy = new MaxOpponentUtilityOfferingStrategy(getDomain(), opponentModel);
     }
 
     @Override
     public Action chooseAction(List<Class<? extends Action>> list) {
         Action action;
-        if(lastOffer != null){
+        if (lastOffer != null) {
             double time = timeline.getTime();
             double targetUtility = concessionStrategy.getTargetUtility(time);
             double utility = getUtility(lastOffer);
 
-            if(time >= 0.99){
-                if(utility >= minUtility) action = new Accept(getPartyId(), lastOffer);
-                else                      action = new EndNegotiation(getPartyId());
-            }else{
+            if (time >= 0.99) {
+                if (utility >= minUtility) action = new Accept(getPartyId(), lastOffer);
+                else action = new EndNegotiation(getPartyId());
+            } else {
                 List<Bid> targetOffers = selectTargetOffers(targetUtility);
                 Bid counterOffer = offeringStrategy.generateBid(targetUtility, targetOffers);
-                if(utility >= targetUtility) action = new Accept(getPartyId(), lastOffer);
-                else                         action = new Offer(getPartyId(), counterOffer);
+                if (utility >= targetUtility) action = new Accept(getPartyId(), lastOffer);
+                else action = new Offer(getPartyId(), counterOffer);
             }
-        }else{
+        } else {
             action = new Offer(getPartyId(), offerSubSpace.get(0));
         }
         displaySummary();
@@ -99,15 +101,22 @@ public class Agent37 extends AbstractNegotiationParty {
         if (action instanceof Offer) {
             lastOffer = ((Offer) action).getBid();
             opponentModel.updateModel(lastOffer);
+            opponentConcessionModel.updateModel(timeline.getTime(), getUtility(lastOffer));
+
+            if (opponentConcessionModel.isOpponentConcess())
+                concessionStrategy.adjustRate(ConcessionRate.SUPER_HARD_HEAD);
+            else {
+                concessionStrategy.adjustRate(ConcessionRate.HARD_HEAD);
+            }
         }
     }
 
     @Override
-    public AbstractUtilitySpace estimateUtilitySpace(){
+    public AbstractUtilitySpace estimateUtilitySpace() {
         /**
          * Pre-generate bid order
          */
-        try{
+        try {
 //            int counter = 0;
 //            Random random = new Random();
 //            do{
@@ -119,7 +128,7 @@ public class Agent37 extends AbstractNegotiationParty {
             preferenceModel = new LinearPreferenceModel(getDomain(), user, scaledUserModel);
             AbstractUtilitySpace estimatedUtilitySpace = preferenceModel.estimateUtilitySpace();
             return estimatedUtilitySpace;
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
             return super.estimateUtilitySpace();
         }
@@ -130,26 +139,27 @@ public class Agent37 extends AbstractNegotiationParty {
         return "Agent37";
     }
 
-    private List<Bid> selectTargetOffers(double targetUtility){
+    private List<Bid> selectTargetOffers(double targetUtility) {
         List<Bid> acceptableOffers = new LinkedList<>();
-        try{
+        try {
             acceptableOffers.add(utilitySpace.getMaxUtilityBid());
-            for(Bid b : offerSubSpace){
-                if(getUtility(b) >= targetUtility) acceptableOffers.add(b);
+            for (Bid b : offerSubSpace) {
+                if (getUtility(b) >= targetUtility) acceptableOffers.add(b);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return acceptableOffers;
     }
 
-    private void displaySummary(){
+    private void displaySummary() {
         double time = timeline.getTime();
         System.out.println("Time                      : " + time);
         System.out.println("LastOffer                 : " + lastOffer);
         System.out.println("LastOffer Utility         : " + getUtility(lastOffer));
         System.out.println("LastOffer OpponentUtility : " + opponentModel.getUtility(lastOffer));
         System.out.println("Target Utility            : " + concessionStrategy.getTargetUtility(time));
+        System.out.println("Opponent Concession       : " + opponentConcessionModel.isOpponentConcess());
     }
 
 }

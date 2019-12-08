@@ -12,6 +12,7 @@ import group37.concession.ConcessionStrategy;
 import group37.offering.HybridOfferingStrategy;
 import group37.offering.OfferingStrategy;
 import group37.opponent.AdaptiveFrequencyOM;
+import group37.opponent.OpponentConcessionModel;
 import group37.opponent.OpponentModel;
 import group37.preference.PreferenceModel;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
     protected double minUtility;
 
     protected OpponentModel opponentModel;
+    protected OpponentConcessionModel opponentConcessionModel;
     protected PreferenceModel preferenceModel;
     protected OfferingStrategy offeringStrategy;
     protected ConcessionStrategy concessionStrategy;
@@ -61,7 +63,8 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
         minUtility = Math.max(utilitySpace.getReservationValue(), minUtility);
 
         opponentModel = new AdaptiveFrequencyOM(getDomain(), 1000, 0.9); //new JonnyBlackOM(getDomain(), 0.5, 10);
-        concessionStrategy = new BoulwareStrategy(maxUtility, minUtility, 0.1);
+        opponentConcessionModel = new OpponentConcessionModel(100);
+        concessionStrategy = new BoulwareStrategy(maxUtility, minUtility, 0.05, 0.1);
 
         System.out.println("Max utility : " + maxUtility);
         System.out.println("Minimum target utility : " + minUtility);
@@ -79,15 +82,15 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
                 preferenceModel.updateModel(lastOffer);
             }
             opponentModel.updateModel(lastOffer);
-
+            opponentConcessionModel.updateModel(timeline.getTime(), getUtility(lastOffer));
         }
     }
 
     @Override
     public Action chooseAction(List<Class<? extends Action>> possibleActions) {
         System.out.println("________________________________________________________");
-        System.out.println("Time : " + (int) (timeline.getTime() * 60));
-        System.out.println("Last offer receive : " + lastOffer);
+        System.out.println("Time : " +  timeline.getTime());
+//        System.out.println("Last offer receive : " + lastOffer);
 
         Action action;
         if (lastOffer != null) {
@@ -99,6 +102,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
             System.out.println("Estimated last offer utility : " + utility);
             System.out.println("Estimated last offer opponent utility : " + opponentUtility);
             System.out.println("Target utility : " + targetUtility);
+            System.out.println("Opponent Concession : " + opponentConcessionModel.isOpponentConcess());
 
             if (timeline.getTime() >= 0.99) {
                 if (utility >= DEFAULT_MIN_TARGET_UTILITY) {
@@ -119,7 +123,7 @@ public class StandardNegotiationAgent extends AbstractNegotiationParty {
             action = new Offer(getPartyId(), getDomain().getRandomBid(new Random()));
         }
 
-        System.out.println("Action taken : " + action);
+//        System.out.println("Action taken : " + action);
         if (action instanceof DefaultActionWithBid) {
             DefaultActionWithBid lastBid = (DefaultActionWithBid) action;
             System.out.println("Counter offer utility : " + getUtility(lastBid.getBid()));
