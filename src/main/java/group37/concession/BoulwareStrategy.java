@@ -4,17 +4,20 @@ public class BoulwareStrategy implements ConcessionStrategy {
 
     private double minUtility;
     private double maxUtility;
+    private double initialConcession;
     private double concessionRate;
 
-    public BoulwareStrategy(double maxTargetUtility, double minTargetUtility, double concessionValue) {
+    public BoulwareStrategy(double maxTargetUtility, double minTargetUtility, double initialConcession, double concessionValue) {
         this.minUtility = minTargetUtility;
         this.maxUtility = maxTargetUtility;
+        this.initialConcession = initialConcession;
         this.concessionRate = concessionValue;
     }
 
     @Override
     public double getTargetUtility(double time) {
-        return minUtility + (1 - Math.pow(time, 1 / concessionRate)) * (maxUtility - minUtility);
+        double timeFunction = initialConcession + ((1 - initialConcession) * Math.pow(time, 1 / concessionRate));
+        return minUtility + (1 - timeFunction) * (maxUtility - minUtility);
     }
 
 }

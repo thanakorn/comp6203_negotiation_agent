@@ -24,7 +24,6 @@ public class HybridOfferingStrategy extends OfferingStrategy {
 
     @Override
     public Bid generateBid(double targetUtility) {
-        System.out.println(((AdaptiveFrequencyOM) opponentModel).opponentUtilitySpace.toString());
         Bid offer = null;
         double highestOppUtil = -1.0;
         for (Bid bid : bids) {
