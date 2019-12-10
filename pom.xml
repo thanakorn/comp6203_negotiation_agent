@@ -51,6 +51,20 @@
             <systemPath>${project.basedir}/resources/genius-9.1.12.jar</systemPath>
         </dependency>
         <dependency>
+            <groupId>tp2n19</groupId>
+            <artifactId>scpsolver</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/resources/SCPSolver.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>tp2n19</groupId>
+            <artifactId>lpsolve</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/resources/LPSOLVESolverPack.jar</systemPath>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
             <version>3.6.1</version>
