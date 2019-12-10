@@ -20,6 +20,7 @@ import group37.opponent.OpponentModel;
 import group37.preference.PreferenceModel;
 import group37.preference.UserModelScaler;
 import group37.preference.lp.LinearPreferenceModel;
+import group37.preference.lp.LinearProgrammingPM;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -146,8 +147,8 @@ public class Agent37 extends AbstractNegotiationParty {
 //                userModel = user.elicitRank(bid, userModel);
 //                counter++;
 //            }while(user.getTotalBother() < MAX_ELICIT_COST && counter < MAX_ELICITATION_ROUND);
-            UserModel scaledUserModel = UserModelScaler.scaleUserModel(userModel, MAX_BID_ORDER_SIZE);
-            preferenceModel = new LinearPreferenceModel(getDomain(), user, scaledUserModel);
+//            UserModel scaledUserModel = UserModelScaler.scaleUserModel(userModel, MAX_BID_ORDER_SIZE);
+            preferenceModel = new LinearProgrammingPM(getDomain(), user, userModel);
             AbstractUtilitySpace estimatedUtilitySpace = preferenceModel.estimateUtilitySpace();
             return estimatedUtilitySpace;
         } catch (Exception ex) {

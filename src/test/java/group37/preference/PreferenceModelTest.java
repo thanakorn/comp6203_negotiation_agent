@@ -10,6 +10,7 @@ import genius.core.uncertainty.UserModel;
 import genius.core.utility.AdditiveUtilitySpace;
 import genius.core.utility.EvaluatorDiscrete;
 import group37.preference.lp.LinearPreferenceModel;
+import group37.preference.lp.LinearProgrammingPM;
 import org.junit.Test;
 import org.mockito.Mockito;
 import java.util.*;
@@ -56,7 +57,8 @@ public class PreferenceModelTest {
                 UserModel userModel = new UserModel(bidRank);
                 User user = Mockito.mock(User.class);
 
-                PreferenceModel pm = new LinearPreferenceModel(domain, user, userModel);
+//                PreferenceModel pm = new LinearProgrammingPM(domain, user, userModel);
+                PreferenceModel pm = new LinearProgrammingPM(domain, user, userModel);
                 AdditiveUtilitySpace estimatedUtilitySpace = (AdditiveUtilitySpace) pm.estimateUtilitySpace();
 
                 System.out.println("\nEstimated UtilitySpace");
